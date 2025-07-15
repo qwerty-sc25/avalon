@@ -7,8 +7,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import qwerty.chaekit.domain.ebook.Ebook;
-import qwerty.chaekit.domain.ebook.purchase.EbookPurchase;
-import qwerty.chaekit.domain.ebook.purchase.repository.EbookPurchaseRepository;
+import qwerty.chaekit.domain.ebook.purchase.EbookShelfItem;
+import qwerty.chaekit.domain.ebook.purchase.repository.EbookShelfRepository;
 import qwerty.chaekit.domain.group.activity.Activity;
 import qwerty.chaekit.domain.group.activity.activitymember.ActivityMember;
 import qwerty.chaekit.domain.group.activity.activitymember.ActivityMemberRepository;
@@ -29,7 +29,7 @@ import java.util.List;
 @Transactional
 public class ReadingProgressService {
     
-    private final EbookPurchaseRepository ebookPurchaseRepository;
+    private final EbookShelfRepository ebookShelfRepository;
     private final ActivityMemberRepository activityMemberRepository;
     private final ReadingProgressMapper readingProgressMapper;
     private final EntityFinder entityFinder;
@@ -40,20 +40,20 @@ public class ReadingProgressService {
         UserProfile user = entityFinder.findUser(userToken.userId());
         Ebook ebook = entityFinder.findEbook(bookId);
 
-        EbookPurchase ebookPurchase = ebookPurchaseRepository.findByUserAndEbook(user, ebook)
+        EbookShelfItem ebookShelfItem = ebookShelfRepository.findByUserAndEbook(user, ebook)
                 .orElseThrow(() -> new ForbiddenException(ErrorCode.EBOOK_NOT_PURCHASED));
 
-        ebookPurchase.saveProgress(request.cfi(), request.percentage());
+        ebookShelfItem.saveProgress(request.cfi(), request.percentage());
     }
 
     public ReadingProgressResponse getMyProgress(UserToken userToken, Long bookId) {
         UserProfile user = entityFinder.findUser(userToken.userId());
         Ebook ebook = entityFinder.findEbook(bookId);
 
-        EbookPurchase ebookPurchase = ebookPurchaseRepository.findByUserAndEbook(user,ebook)
+        EbookShelfItem ebookShelfItem = ebookShelfRepository.findByUserAndEbook(user,ebook)
                 .orElseThrow(() -> new ForbiddenException(ErrorCode.EBOOK_NOT_PURCHASED));
 
-        return readingProgressMapper.toResponse(ebookPurchase);
+        return readingProgressMapper.toResponse(ebookShelfItem);
     }
 
     public PageResponse<ReadingProgressResponse> getProgressFromActivity(Long activityId, Pageable pageable) {
@@ -63,8 +63,8 @@ public class ReadingProgressService {
         List<Long> userIdList = activityMembers
                 .map(activityMember -> activityMember.getUser().getId())
                 .stream().toList();
-        List<EbookPurchase> purchaseList = ebookPurchaseRepository.findByUserIdInAndEbook(userIdList, activity.getBook());
-        Page<EbookPurchase> ebookPurchases = new PageImpl<>(purchaseList, pageable, purchaseList.size());
+        List<EbookShelfItem> purchaseList = ebookShelfRepository.findByUserIdInAndEbook(userIdList, activity.getBook());
+        Page<EbookShelfItem> ebookPurchases = new PageImpl<>(purchaseList, pageable, purchaseList.size());
 
         return PageResponse.of(ebookPurchases.map(readingProgressMapper::toResponse));
     }

@@ -8,8 +8,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import qwerty.chaekit.domain.ebook.Ebook;
 import qwerty.chaekit.domain.ebook.history.ReadingProgressHistory;
 import qwerty.chaekit.domain.ebook.history.ReadingProgressHistoryRepository;
-import qwerty.chaekit.domain.ebook.purchase.EbookPurchase;
-import qwerty.chaekit.domain.ebook.purchase.repository.EbookPurchaseRepository;
+import qwerty.chaekit.domain.ebook.purchase.EbookShelfItem;
+import qwerty.chaekit.domain.ebook.purchase.repository.EbookShelfRepository;
 import qwerty.chaekit.domain.group.ReadingGroup;
 import qwerty.chaekit.domain.group.activity.Activity;
 import qwerty.chaekit.domain.group.activity.activitymember.ActivityMember;
@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -45,7 +44,7 @@ class ReadingProgressHistoryServiceTest {
     @Mock
     private ActivityMemberRepository activityMemberRepository;
     @Mock
-    private EbookPurchaseRepository ebookPurchaseRepository;
+    private EbookShelfRepository ebookShelfRepository;
     @Mock
     private ReadingProgressHistoryRepository historyRepository;
     @Mock
@@ -79,7 +78,7 @@ class ReadingProgressHistoryServiceTest {
                 .build();
         activityMember.resetCreatedAt(LocalDateTime.now().minusDays(3));
 
-        EbookPurchase ebookPurchase = EbookPurchase.builder()
+        EbookShelfItem ebookShelfItem = EbookShelfItem.builder()
                 .user(user)
                 .ebook(ebook)
                 .percentage(50L)
@@ -99,8 +98,8 @@ class ReadingProgressHistoryServiceTest {
                 .thenReturn(Optional.of(activityMember));
         when(activityMemberRepository.findByActivity(activity))
                 .thenReturn(List.of(activityMember));
-        when(ebookPurchaseRepository.findByUserIdInAndEbook(List.of(userId), ebook))
-                .thenReturn(List.of(ebookPurchase));
+        when(ebookShelfRepository.findByUserIdInAndEbook(List.of(userId), ebook))
+                .thenReturn(List.of(ebookShelfItem));
         when(historyRepository.findByActivityAndCreatedAtBetween(
                 eq(activity),
                 any(LocalDateTime.class),
@@ -161,7 +160,7 @@ class ReadingProgressHistoryServiceTest {
                 .build();
         activityMember.resetCreatedAt(LocalDateTime.now().minusDays(3));
 
-        EbookPurchase ebookPurchase = EbookPurchase.builder()
+        EbookShelfItem ebookShelfItem = EbookShelfItem.builder()
                 .user(user)
                 .ebook(ebook)
                 .percentage(50L)
@@ -174,8 +173,8 @@ class ReadingProgressHistoryServiceTest {
         )).thenReturn(List.of(activity));
         when(activityMemberRepository.findByActivity(activity))
                 .thenReturn(List.of(activityMember));
-        when(ebookPurchaseRepository.findByUserAndEbook(user, ebook))
-                .thenReturn(Optional.of(ebookPurchase));
+        when(ebookShelfRepository.findByUserAndEbook(user, ebook))
+                .thenReturn(Optional.of(ebookShelfItem));
         when(historyRepository.save(any(ReadingProgressHistory.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -187,7 +186,7 @@ class ReadingProgressHistoryServiceTest {
                 any(LocalDate.class)
         );
         verify(activityMemberRepository).findByActivity(activity);
-        verify(ebookPurchaseRepository).findByUserAndEbook(user, ebook);
+        verify(ebookShelfRepository).findByUserAndEbook(user, ebook);
         verify(historyRepository).save(argThat(history -> 
             history.getActivity().equals(activity) &&
             history.getUser().equals(user) &&
@@ -227,7 +226,7 @@ class ReadingProgressHistoryServiceTest {
         )).thenReturn(List.of(activity));
         when(activityMemberRepository.findByActivity(activity))
                 .thenReturn(List.of(activityMember));
-        when(ebookPurchaseRepository.findByUserAndEbook(user, ebook))
+        when(ebookShelfRepository.findByUserAndEbook(user, ebook))
                 .thenReturn(Optional.empty());
         when(historyRepository.save(any(ReadingProgressHistory.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
@@ -240,7 +239,7 @@ class ReadingProgressHistoryServiceTest {
                 any(LocalDate.class)
         );
         verify(activityMemberRepository).findByActivity(activity);
-        verify(ebookPurchaseRepository).findByUserAndEbook(user, ebook);
+        verify(ebookShelfRepository).findByUserAndEbook(user, ebook);
         verify(historyRepository).save(argThat(history -> 
             history.getActivity().equals(activity) &&
             history.getUser().equals(user) &&

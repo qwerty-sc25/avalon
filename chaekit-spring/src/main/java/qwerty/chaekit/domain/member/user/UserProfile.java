@@ -9,7 +9,7 @@ import org.hibernate.annotations.BatchSize;
 import qwerty.chaekit.domain.BaseEntity;
 
 import qwerty.chaekit.domain.ebook.Ebook;
-import qwerty.chaekit.domain.ebook.purchase.EbookPurchase;
+import qwerty.chaekit.domain.ebook.purchase.EbookShelfItem;
 import qwerty.chaekit.domain.member.Member;
 
 import java.util.ArrayList;
@@ -36,7 +36,7 @@ public class UserProfile extends BaseEntity {
     
     @OneToMany(mappedBy = "user")
     @BatchSize(size = 30)
-    private final List<EbookPurchase> purchaseList = new ArrayList<>();
+    private final List<EbookShelfItem> purchaseList = new ArrayList<>();
 
     @Builder
     public UserProfile(Long id, Member member, String nickname, String profileImageKey) {

@@ -7,14 +7,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import qwerty.chaekit.domain.BaseEntity;
 import qwerty.chaekit.domain.ebook.Ebook;
-import qwerty.chaekit.domain.ebook.credit.usage.CreditUsageTransaction;
 import qwerty.chaekit.domain.member.user.UserProfile;
 
 @Entity
 @Getter
-@Table(name = "ebook_purchase")
+@Table(name = "ebook_shelf_item")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class EbookPurchase extends BaseEntity {
+public class EbookShelfItem extends BaseEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -26,10 +25,6 @@ public class EbookPurchase extends BaseEntity {
     @JoinColumn(name="user_id")
     private UserProfile user;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="credit_usage_transaction_id")
-    private CreditUsageTransaction creditUsageTransaction;
-
     @Column
     private String cfi;
 
@@ -37,10 +32,9 @@ public class EbookPurchase extends BaseEntity {
     private long percentage = 0L;
 
     @Builder
-    public EbookPurchase(Ebook ebook, UserProfile user, CreditUsageTransaction transaction,String cfi, long percentage) {
+    public EbookShelfItem(Ebook ebook, UserProfile user, String cfi, long percentage) {
         this.ebook = ebook;
         this.user = user;
-        this.creditUsageTransaction = transaction;
         this.cfi = cfi;
         this.percentage = percentage;
     }

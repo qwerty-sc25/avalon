@@ -6,13 +6,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import qwerty.chaekit.domain.ebook.Ebook;
-import qwerty.chaekit.domain.ebook.credit.usage.CreditUsageTransaction;
 import qwerty.chaekit.domain.ebook.credit.usage.CreditUsageTransactionRepository;
-import qwerty.chaekit.domain.ebook.credit.usage.CreditUsageTransactionType;
 import qwerty.chaekit.domain.ebook.credit.wallet.CreditWallet;
 import qwerty.chaekit.domain.ebook.credit.wallet.CreditWalletRepository;
-import qwerty.chaekit.domain.ebook.purchase.EbookPurchase;
-import qwerty.chaekit.domain.ebook.purchase.repository.EbookPurchaseRepository;
+import qwerty.chaekit.domain.ebook.purchase.EbookShelfItem;
+import qwerty.chaekit.domain.ebook.purchase.repository.EbookShelfRepository;
 import qwerty.chaekit.domain.ebook.repository.EbookRepository;
 import qwerty.chaekit.domain.group.ReadingGroup;
 import qwerty.chaekit.domain.group.activity.Activity;
@@ -44,13 +42,12 @@ public class DummyBigDataFactory {
     private final EbookRepository ebookRepository;
     private final AdminService adminService;
     private final EntityFinder entityFinder;
-    private final EbookPurchaseRepository ebookPurchaseRepository;
+    private final EbookShelfRepository ebookShelfRepository;
     private final CreditWalletRepository creditWalletRepository;
     private final ActivityRepository activityRepository;
 
     private final LocalDate startDate = LocalDate.of(2024, 6, 1);
     private final LocalDate endDate = LocalDate.of(2025, 5, 31);
-    private final CreditUsageTransactionRepository creditUsageTransactionRepository;
 
     @Transactional
     public void generateDummyDataForTest() {
@@ -80,26 +77,19 @@ public class DummyBigDataFactory {
                 .build());
         savedWallet.addCredit(10000000L); // 더미 금액 추가
 
-        List<EbookPurchase> purchases = new ArrayList<>();
+        List<EbookShelfItem> purchases = new ArrayList<>();
         for (UserProfile user : users) {
             List<Ebook> randomBooks = getRandomSubset(ebooks, 3);
             for (Ebook book : randomBooks) {
-                CreditUsageTransaction transaction = CreditUsageTransaction.builder()
-                        .wallet(savedWallet) // 더미 금액
-                        .transactionType(CreditUsageTransactionType.PURCHASE)
-                        .creditAmount(book.getPrice()) // 책 가격
-                        .build();
-                creditUsageTransactionRepository.save(transaction);
-                EbookPurchase ep = EbookPurchase.builder()
+                EbookShelfItem ep = EbookShelfItem.builder()
                         .ebook(book)
                         .user(user)
-                        .transaction(transaction)
                         .build();
                 ep.resetCreatedAt(biasedRandomDate());
                 purchases.add(ep);
             }
         }
-        ebookPurchaseRepository.saveAll(purchases);
+        ebookShelfRepository.saveAll(purchases);
 
         // 4. 사용자 중 30명을 랜덤으로 뽑아 모임 생성
         List<Activity> activities = new ArrayList<>();

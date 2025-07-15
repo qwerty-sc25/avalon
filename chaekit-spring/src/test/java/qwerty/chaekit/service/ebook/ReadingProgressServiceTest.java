@@ -10,8 +10,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import qwerty.chaekit.domain.ebook.Ebook;
-import qwerty.chaekit.domain.ebook.purchase.EbookPurchase;
-import qwerty.chaekit.domain.ebook.purchase.repository.EbookPurchaseRepository;
+import qwerty.chaekit.domain.ebook.purchase.EbookShelfItem;
+import qwerty.chaekit.domain.ebook.purchase.repository.EbookShelfRepository;
 import qwerty.chaekit.domain.group.activity.Activity;
 import qwerty.chaekit.domain.group.activity.activitymember.ActivityMember;
 import qwerty.chaekit.domain.group.activity.activitymember.ActivityMemberRepository;
@@ -31,7 +31,6 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -41,7 +40,7 @@ class ReadingProgressServiceTest {
     private ReadingProgressService readingProgressService;
 
     @Mock
-    private EbookPurchaseRepository ebookPurchaseRepository;
+    private EbookShelfRepository ebookShelfRepository;
 
     @Mock
     private ActivityMemberRepository activityMemberRepository;
@@ -80,7 +79,7 @@ class ReadingProgressServiceTest {
                 .publisher(publisher)
                 .build();
 
-        EbookPurchase ebookPurchase = EbookPurchase.builder()
+        EbookShelfItem ebookShelfItem = EbookShelfItem.builder()
                 .user(user)
                 .ebook(ebook)
                 .build();
@@ -88,13 +87,13 @@ class ReadingProgressServiceTest {
         // when
         when(entityFinder.findUser(userId)).thenReturn(user);
         when(entityFinder.findEbook(bookId)).thenReturn(ebook);
-        when(ebookPurchaseRepository.findByUserAndEbook(user, ebook)).thenReturn(Optional.of(ebookPurchase));
+        when(ebookShelfRepository.findByUserAndEbook(user, ebook)).thenReturn(Optional.of(ebookShelfItem));
 
         readingProgressService.saveMyProgress(userToken, bookId, request);
 
         // then
-        assertThat(ebookPurchase.getCfi()).isEqualTo(cfi);
-        assertThat(ebookPurchase.getPercentage()).isEqualTo(percentage);
+        assertThat(ebookShelfItem.getCfi()).isEqualTo(cfi);
+        assertThat(ebookShelfItem.getPercentage()).isEqualTo(percentage);
     }
 
     @Test
@@ -128,7 +127,7 @@ class ReadingProgressServiceTest {
         // when
         when(entityFinder.findUser(userId)).thenReturn(user);
         when(entityFinder.findEbook(bookId)).thenReturn(ebook);
-        when(ebookPurchaseRepository.findByUserAndEbook(user, ebook)).thenReturn(Optional.empty());
+        when(ebookShelfRepository.findByUserAndEbook(user, ebook)).thenReturn(Optional.empty());
 
         // then
         assertThatThrownBy(() -> readingProgressService.saveMyProgress(userToken, bookId, request))
@@ -163,11 +162,11 @@ class ReadingProgressServiceTest {
                 .publisher(publisher)
                 .build();
 
-        EbookPurchase ebookPurchase = EbookPurchase.builder()
+        EbookShelfItem ebookShelfItem = EbookShelfItem.builder()
                 .user(user)
                 .ebook(ebook)
                 .build();
-        ebookPurchase.saveProgress(cfi, percentage);
+        ebookShelfItem.saveProgress(cfi, percentage);
 
         ReadingProgressResponse expectedResponse = ReadingProgressResponse.builder()
                 .bookId(bookId)
@@ -181,8 +180,8 @@ class ReadingProgressServiceTest {
         // when
         when(entityFinder.findUser(userId)).thenReturn(user);
         when(entityFinder.findEbook(bookId)).thenReturn(ebook);
-        when(ebookPurchaseRepository.findByUserAndEbook(user, ebook)).thenReturn(Optional.of(ebookPurchase));
-        when(readingProgressMapper.toResponse(ebookPurchase)).thenReturn(expectedResponse);
+        when(ebookShelfRepository.findByUserAndEbook(user, ebook)).thenReturn(Optional.of(ebookShelfItem));
+        when(readingProgressMapper.toResponse(ebookShelfItem)).thenReturn(expectedResponse);
 
         ReadingProgressResponse response = readingProgressService.getMyProgress(userToken, bookId);
 
@@ -239,13 +238,13 @@ class ReadingProgressServiceTest {
                 .user(user2)
                 .build();
 
-        EbookPurchase purchase1 = EbookPurchase.builder()
+        EbookShelfItem purchase1 = EbookShelfItem.builder()
                 .user(user1)
                 .ebook(ebook)
                 .build();
         purchase1.saveProgress("cfi1", 30L);
 
-        EbookPurchase purchase2 = EbookPurchase.builder()
+        EbookShelfItem purchase2 = EbookShelfItem.builder()
                 .user(user2)
                 .ebook(ebook)
                 .build();
@@ -271,7 +270,7 @@ class ReadingProgressServiceTest {
         when(entityFinder.findActivity(activityId)).thenReturn(activity);
         when(activityMemberRepository.findByActivity(activity, pageable))
                 .thenReturn(new PageImpl<>(List.of(member1, member2)));
-        when(ebookPurchaseRepository.findByUserIdInAndEbook(List.of(user1.getId(), user2.getId()), ebook))
+        when(ebookShelfRepository.findByUserIdInAndEbook(List.of(user1.getId(), user2.getId()), ebook))
                 .thenReturn(List.of(purchase1, purchase2));
         when(readingProgressMapper.toResponse(purchase1)).thenReturn(response1);
         when(readingProgressMapper.toResponse(purchase2)).thenReturn(response2);

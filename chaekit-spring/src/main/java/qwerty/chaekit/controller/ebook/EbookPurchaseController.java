@@ -7,26 +7,26 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import qwerty.chaekit.dto.ebook.EbookFetchResponse;
-import qwerty.chaekit.dto.ebook.purchase.EbookPurchaseResponse;
+import qwerty.chaekit.dto.ebook.purchase.EbookRegisterResponse;
 import qwerty.chaekit.dto.page.PageResponse;
 import qwerty.chaekit.global.response.ApiSuccessResponse;
 import qwerty.chaekit.global.security.resolver.Login;
 import qwerty.chaekit.global.security.resolver.UserToken;
-import qwerty.chaekit.service.ebook.EbookPurchaseService;
+import qwerty.chaekit.service.ebook.EbookShelfService;
 
 @RestController
 @RequestMapping("/api/books")
 @RequiredArgsConstructor
 public class EbookPurchaseController {
-    public final EbookPurchaseService ebookPurchaseService;
+    public final EbookShelfService ebookShelfService;
 
-    @PostMapping("/{bookId}/purchase")
-    @Operation(summary = "전자책 구매", description = "보유한 크레딧으로 전자책을 구매합니다.")
-    public ApiSuccessResponse<EbookPurchaseResponse> purchaseEbook(
+    @PostMapping("/{bookId}/register")
+    @Operation(summary = "전자책 서재 등록", description = "전자책을 내 서재에 등록합니다.")
+    public ApiSuccessResponse<EbookRegisterResponse> registerEbook(
             @Parameter(hidden = true) @Login UserToken userToken,
             @Parameter(description = "전자책 ID") @PathVariable Long bookId
     ) {
-        return ApiSuccessResponse.of(ebookPurchaseService.purchaseEbook(bookId, userToken.userId()));
+        return ApiSuccessResponse.of(ebookShelfService.registerEbook(bookId, userToken.userId()));
     }
 
     @GetMapping("/my")
@@ -35,7 +35,7 @@ public class EbookPurchaseController {
             @Parameter(hidden = true) @Login UserToken userToken,
             @Parameter(description = "페이지네이션 정보") @ParameterObject Pageable pageable
     ) {
-        return ApiSuccessResponse.of(ebookPurchaseService.getMyBooks(userToken.userId(), pageable));
+        return ApiSuccessResponse.of(ebookShelfService.getMyBooks(userToken.userId(), pageable));
     }
 
 

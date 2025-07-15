@@ -7,12 +7,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import qwerty.chaekit.domain.ebook.Ebook;
-import qwerty.chaekit.domain.ebook.purchase.repository.EbookPurchaseRepository;
+import qwerty.chaekit.domain.ebook.purchase.repository.EbookShelfRepository;
 import qwerty.chaekit.domain.member.user.UserProfile;
 import qwerty.chaekit.global.enums.ErrorCode;
 import qwerty.chaekit.global.exception.ForbiddenException;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -24,7 +23,7 @@ class EbookPolicyTest {
     private EbookPolicy ebookPolicy;
 
     @Mock
-    private EbookPurchaseRepository ebookPurchaseRepository;
+    private EbookShelfRepository ebookShelfRepository;
 
     @Test
     @DisplayName("이북 구매 확인 성공")
@@ -40,7 +39,7 @@ class EbookPolicyTest {
         when(ebook.getId()).thenReturn(ebookId);
 
         // when
-        when(ebookPurchaseRepository.existsByUserIdAndEbookId(userId, ebookId)).thenReturn(true);
+        when(ebookShelfRepository.existsByUserIdAndEbookId(userId, ebookId)).thenReturn(true);
 
         // then
         ebookPolicy.assertEBookPurchased(user, ebook);
@@ -60,7 +59,7 @@ class EbookPolicyTest {
         when(ebook.getId()).thenReturn(ebookId);
 
         // when
-        when(ebookPurchaseRepository.existsByUserIdAndEbookId(userId, ebookId)).thenReturn(false);
+        when(ebookShelfRepository.existsByUserIdAndEbookId(userId, ebookId)).thenReturn(false);
 
         // then
         assertThatThrownBy(() -> ebookPolicy.assertEBookPurchased(user, ebook))
