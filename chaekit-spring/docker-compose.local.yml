@@ -1,0 +1,21 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-local
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: chaekit
+      MYSQL_ROOT_PASSWORD: "0000"
+      TZ: Asia/Seoul
+    volumes:
+      - mysql-chaekit-local-data:/var/lib/mysql
+
+  redis:
+    image: redis:alpine
+    container_name: redis-local
+    ports:
+      - "6379:6379"
+
+volumes:
+  mysql-chaekit-local-data:
