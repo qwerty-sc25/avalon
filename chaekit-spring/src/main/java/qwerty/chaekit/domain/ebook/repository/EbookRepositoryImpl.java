@@ -9,7 +9,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import qwerty.chaekit.domain.ebook.Ebook;
 import qwerty.chaekit.domain.ebook.QEbook;
-import qwerty.chaekit.domain.member.publisher.PublisherProfile;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,6 +18,11 @@ import java.util.Optional;
 public class EbookRepositoryImpl implements EbookRepository {
     private final JPAQueryFactory jpaQueryFactory;
     private final EbookJpaRepository ebookJpaRepository;
+
+    @Override
+    public Page<Ebook> findAll(Pageable pageable) {
+        return ebookJpaRepository.findAll(pageable);
+    }
 
     @Override
     public Page<Ebook> findAllByTitleAndAuthor(String title, String author, Pageable pageable) {
@@ -54,11 +58,6 @@ public class EbookRepositoryImpl implements EbookRepository {
     }
 
     @Override
-    public Optional<Ebook> findByIdWithPublisher(Long id) {
-        return ebookJpaRepository.findByIdWithPublisher(id);
-    }
-
-    @Override
     public Ebook save(Ebook ebook) {
         return ebookJpaRepository.save(ebook);
     }
@@ -66,11 +65,6 @@ public class EbookRepositoryImpl implements EbookRepository {
     @Override
     public boolean existsByTitle(String name) {
         return ebookJpaRepository.existsByTitle(name);
-    }
-
-    @Override
-    public Page<Ebook> findAllByPublisher(PublisherProfile publisher, Pageable pageable) {
-        return ebookJpaRepository.findAllByPublisher(publisher, pageable);
     }
 
     @Override

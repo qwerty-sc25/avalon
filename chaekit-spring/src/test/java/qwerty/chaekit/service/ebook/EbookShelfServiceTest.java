@@ -10,19 +10,13 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import qwerty.chaekit.domain.ebook.Ebook;
-import qwerty.chaekit.domain.ebook.credit.usage.CreditUsageTransaction;
-import qwerty.chaekit.domain.ebook.credit.usage.CreditUsageTransactionRepository;
-import qwerty.chaekit.domain.ebook.credit.usage.CreditUsageTransactionType;
-import qwerty.chaekit.domain.ebook.credit.wallet.CreditWallet;
-import qwerty.chaekit.domain.ebook.credit.wallet.CreditWalletRepository;
-import qwerty.chaekit.domain.ebook.purchase.EbookShelfItem;
-import qwerty.chaekit.domain.ebook.purchase.repository.EbookShelfRepository;
+import qwerty.chaekit.domain.ebook.shelf.EbookShelfItem;
+import qwerty.chaekit.domain.ebook.shelf.repository.EbookShelfRepository;
 import qwerty.chaekit.domain.ebook.repository.EbookRepository;
-import qwerty.chaekit.domain.member.publisher.PublisherProfile;
 import qwerty.chaekit.domain.member.user.UserProfile;
 import qwerty.chaekit.domain.member.user.UserProfileRepository;
 import qwerty.chaekit.dto.ebook.EbookFetchResponse;
-import qwerty.chaekit.dto.ebook.purchase.EbookRegisterResponse;
+import qwerty.chaekit.dto.ebook.shelf.EbookRegisterResponse;
 import qwerty.chaekit.dto.page.PageResponse;
 import qwerty.chaekit.global.enums.ErrorCode;
 import qwerty.chaekit.global.exception.BadRequestException;
@@ -43,16 +37,10 @@ class EbookShelfServiceTest {
     private EbookShelfService ebookShelfService;
 
     @Mock
-    private CreditUsageTransactionRepository creditUsageTransactionRepository;
-
-    @Mock
     private EbookShelfRepository ebookShelfRepository;
 
     @Mock
     private UserProfileRepository userRepository;
-
-    @Mock
-    private CreditWalletRepository creditWalletRepository;
 
     @Mock
     private EbookRepository ebookRepository;
@@ -61,42 +49,22 @@ class EbookShelfServiceTest {
     private FileService fileService;
 
     @Test
-    @DisplayName("이북 구매 성공")
+    @DisplayName("서재 등록 성공")
     void registerEbook_Success() {
         // given
         Long userId = 1L;
         Long ebookId = 1L;
-        int price = 1000;
 
         UserProfile user = UserProfile.builder()
                 .id(userId)
-                .build();
-
-        PublisherProfile publisher = PublisherProfile.builder()
-                .id(1L)
-                .publisherName("Test Publisher")
                 .build();
 
         Ebook ebook = Ebook.builder()
                 .id(ebookId)
                 .title("Test Book")
                 .author("Test Author")
-                .price(price)
                 .fileKey("test-file-key")
                 .coverImageKey("test-cover-key")
-                .publisher(publisher)
-                .build();
-
-        CreditWallet wallet = CreditWallet.builder()
-                .id(1L)
-                .user(user)
-                .build();
-        wallet.addCredit(2000);
-
-        CreditUsageTransaction transaction = CreditUsageTransaction.builder()
-                .wallet(wallet)
-                .creditAmount(price)
-                .transactionType(CreditUsageTransactionType.PURCHASE)
                 .build();
 
         EbookShelfItem shelfItem = EbookShelfItem.builder()
@@ -106,10 +74,8 @@ class EbookShelfServiceTest {
 
         // when
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(creditWalletRepository.findByUser_Id(userId)).thenReturn(Optional.of(wallet));
-        when(ebookRepository.findByIdWithPublisher(ebookId)).thenReturn(Optional.of(ebook));
+        when(ebookRepository.findById(ebookId)).thenReturn(Optional.of(ebook));
         when(ebookShelfRepository.existsByUserIdAndEbookId(userId, ebookId)).thenReturn(false);
-        when(creditUsageTransactionRepository.save(any())).thenReturn(transaction);
         when(ebookShelfRepository.save(any())).thenReturn(shelfItem);
         when(fileService.getEbookDownloadUrl(any())).thenReturn("http://test.com/download");
 
@@ -120,13 +86,12 @@ class EbookShelfServiceTest {
         assertThat(response.userId()).isEqualTo(userId);
         assertThat(response.bookId()).isEqualTo(ebookId);
         assertThat(response.presignedDownloadURL()).isEqualTo("http://test.com/download");
-        verify(creditUsageTransactionRepository).save(any());
         verify(ebookShelfRepository).save(any());
     }
 
     @Test
-    @DisplayName("이북 구매 실패 - 이미 구매한 이북")
-    void registerEbook_Failure_AlreadyPurchased() {
+    @DisplayName("서재 등록 실패 - 이미 등록한 이북")
+    void registerEbook_Failure_AlreadyRegistered() {
         // given
         Long userId = 1L;
         Long ebookId = 1L;
@@ -135,59 +100,20 @@ class EbookShelfServiceTest {
                 .id(userId)
                 .build();
 
-        CreditWallet wallet = CreditWallet.builder()
-                .id(1L)
-                .user(user)
-                .build();
 
         Ebook ebook = Ebook.builder()
                 .id(ebookId)
-                .price(1000)
                 .build();
 
         // when
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(creditWalletRepository.findByUser_Id(userId)).thenReturn(Optional.of(wallet));
-        when(ebookRepository.findByIdWithPublisher(ebookId)).thenReturn(Optional.of(ebook));
+        when(ebookRepository.findById(ebookId)).thenReturn(Optional.of(ebook));
         when(ebookShelfRepository.existsByUserIdAndEbookId(userId, ebookId)).thenReturn(true);
 
         // then
         assertThatThrownBy(() -> ebookShelfService.registerEbook(ebookId, userId))
                 .isInstanceOf(BadRequestException.class)
-                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.EBOOK_ALREADY_PURCHASED.getCode());
-    }
-
-    @Test
-    @DisplayName("이북 구매 실패 - 크레딧 부족")
-    void registerEbook_Failure_InsufficientCredit() {
-        // given
-        Long userId = 1L;
-        Long ebookId = 1L;
-
-        UserProfile user = UserProfile.builder()
-                .id(userId)
-                .build();
-
-        CreditWallet wallet = CreditWallet.builder()
-                .id(1L)
-                .user(user)
-                .build();
-
-        Ebook ebook = Ebook.builder()
-                .id(ebookId)
-                .price(1000)
-                .build();
-
-        // when
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(creditWalletRepository.findByUser_Id(userId)).thenReturn(Optional.of(wallet));
-        when(ebookRepository.findByIdWithPublisher(ebookId)).thenReturn(Optional.of(ebook));
-        when(ebookShelfRepository.existsByUserIdAndEbookId(userId, ebookId)).thenReturn(false);
-
-        // then
-        assertThatThrownBy(() -> ebookShelfService.registerEbook(ebookId, userId))
-                .isInstanceOf(BadRequestException.class)
-                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.CREDIT_NOT_ENOUGH.getCode());
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.EBOOK_ALREADY_REGISTERED.getCode());
     }
 
     @Test
@@ -201,27 +127,21 @@ class EbookShelfServiceTest {
                 .id(userId)
                 .build();
 
-        PublisherProfile publisher = PublisherProfile.builder()
-                .id(1L)
-                .publisherName("Test Publisher")
-                .build();
-
         Ebook ebook = Ebook.builder()
                 .id(1L)
                 .title("Test Book")
                 .author("Test Author")
                 .coverImageKey("test-cover-key")
-                .publisher(publisher)
                 .build();
 
-        EbookShelfItem purchase = EbookShelfItem.builder()
+        EbookShelfItem shelfItem = EbookShelfItem.builder()
                 .user(user)
                 .ebook(ebook)
                 .build();
 
         // when
         when(ebookShelfRepository.findByUserIdWithEbook(userId, pageable))
-                .thenReturn(new PageImpl<>(List.of(purchase)));
+                .thenReturn(new PageImpl<>(List.of(shelfItem)));
         when(fileService.convertToPublicImageURL(any())).thenReturn("http://test.com/cover.jpg");
 
         PageResponse<EbookFetchResponse> response = ebookShelfService.getMyBooks(userId, pageable);
@@ -231,6 +151,5 @@ class EbookShelfServiceTest {
         assertThat(response.content().get(0).title()).isEqualTo("Test Book");
         assertThat(response.content().get(0).author()).isEqualTo("Test Author");
         assertThat(response.content().get(0).bookCoverImageURL()).isEqualTo("http://test.com/cover.jpg");
-        assertThat(response.content().get(0).isPurchased()).isTrue();
     }
 } 

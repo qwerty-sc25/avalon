@@ -58,7 +58,7 @@ public class HighlightService {
             activityPolicy.assertJoined(user, activity);
         } else {
             activity = null;
-            ebookPolicy.assertEBookPurchased(user, ebook);
+            ebookPolicy.assertEBookRegistered(user, ebook);
         }
         
         Highlight highlight = Highlight.builder()

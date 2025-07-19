@@ -50,7 +50,7 @@ public class ActivityService {
         }
 
         activityPolicy.assertActivityPeriodValid(groupId, null, request.startTime(), request.endTime());
-        ebookPolicy.assertEBookPurchased(user, ebook);
+        ebookPolicy.assertEBookRegistered(user, ebook);
 
         Activity saved = activityRepository.save(
                 Activity.builder()

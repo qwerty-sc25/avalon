@@ -1,10 +1,10 @@
-package qwerty.chaekit.domain.ebook.purchase.repository;
+package qwerty.chaekit.domain.ebook.shelf.repository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import qwerty.chaekit.domain.ebook.Ebook;
-import qwerty.chaekit.domain.ebook.purchase.EbookShelfItem;
+import qwerty.chaekit.domain.ebook.shelf.EbookShelfItem;
 import qwerty.chaekit.domain.member.user.UserProfile;
 
 import java.util.List;

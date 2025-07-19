@@ -9,7 +9,7 @@ import org.hibernate.annotations.BatchSize;
 import qwerty.chaekit.domain.BaseEntity;
 
 import qwerty.chaekit.domain.ebook.Ebook;
-import qwerty.chaekit.domain.ebook.purchase.EbookShelfItem;
+import qwerty.chaekit.domain.ebook.shelf.EbookShelfItem;
 import qwerty.chaekit.domain.member.Member;
 
 import java.util.ArrayList;
@@ -36,7 +36,7 @@ public class UserProfile extends BaseEntity {
     
     @OneToMany(mappedBy = "user")
     @BatchSize(size = 30)
-    private final List<EbookShelfItem> purchaseList = new ArrayList<>();
+    private final List<EbookShelfItem> shelfItems = new ArrayList<>();
 
     @Builder
     public UserProfile(Long id, Member member, String nickname, String profileImageKey) {
@@ -48,14 +48,10 @@ public class UserProfile extends BaseEntity {
     
     // 전자책을 조회할때마다 구매 여부를 확인하기 위해 사용하지만, 구매한 전자책이 매우 많아질 경우
     // 성능 저하가 우려된다. 이 경우에는 구매 여부를 확인하는 쿼리를 따로 날리는 것이 좋다.
-    public boolean isPurchased(Ebook ebook) {
-        return purchaseList
+    public boolean isRegistered(Ebook ebook) {
+        return shelfItems
                 .stream()
-                .anyMatch(purchase -> purchase.getEbook().getId().equals(ebook.getId()));
-    }
-    
-    public boolean isNotAdmin() {
-        return !member.isAdmin();
+                .anyMatch(shelfItem -> shelfItem.getEbook().getId().equals(ebook.getId()));
     }
     
     public void updateNickname(String nickname) {

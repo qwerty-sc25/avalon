@@ -7,14 +7,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import qwerty.chaekit.domain.ebook.Ebook;
-import qwerty.chaekit.domain.ebook.purchase.EbookShelfItem;
-import qwerty.chaekit.domain.ebook.purchase.repository.EbookShelfRepository;
+import qwerty.chaekit.domain.ebook.shelf.EbookShelfItem;
+import qwerty.chaekit.domain.ebook.shelf.repository.EbookShelfRepository;
 import qwerty.chaekit.domain.group.activity.Activity;
 import qwerty.chaekit.domain.group.activity.activitymember.ActivityMember;
 import qwerty.chaekit.domain.group.activity.activitymember.ActivityMemberRepository;
 import qwerty.chaekit.domain.member.user.UserProfile;
-import qwerty.chaekit.dto.ebook.purchase.ReadingProgressRequest;
-import qwerty.chaekit.dto.ebook.purchase.ReadingProgressResponse;
+import qwerty.chaekit.dto.ebook.shelf.ReadingProgressRequest;
+import qwerty.chaekit.dto.ebook.shelf.ReadingProgressResponse;
 import qwerty.chaekit.dto.page.PageResponse;
 import qwerty.chaekit.global.enums.ErrorCode;
 import qwerty.chaekit.global.exception.ForbiddenException;
@@ -41,7 +41,7 @@ public class ReadingProgressService {
         Ebook ebook = entityFinder.findEbook(bookId);
 
         EbookShelfItem ebookShelfItem = ebookShelfRepository.findByUserAndEbook(user, ebook)
-                .orElseThrow(() -> new ForbiddenException(ErrorCode.EBOOK_NOT_PURCHASED));
+                .orElseThrow(() -> new ForbiddenException(ErrorCode.EBOOK_NOT_REGISTERED));
 
         ebookShelfItem.saveProgress(request.cfi(), request.percentage());
     }
@@ -51,7 +51,7 @@ public class ReadingProgressService {
         Ebook ebook = entityFinder.findEbook(bookId);
 
         EbookShelfItem ebookShelfItem = ebookShelfRepository.findByUserAndEbook(user,ebook)
-                .orElseThrow(() -> new ForbiddenException(ErrorCode.EBOOK_NOT_PURCHASED));
+                .orElseThrow(() -> new ForbiddenException(ErrorCode.EBOOK_NOT_REGISTERED));
 
         return readingProgressMapper.toResponse(ebookShelfItem);
     }
@@ -63,9 +63,9 @@ public class ReadingProgressService {
         List<Long> userIdList = activityMembers
                 .map(activityMember -> activityMember.getUser().getId())
                 .stream().toList();
-        List<EbookShelfItem> purchaseList = ebookShelfRepository.findByUserIdInAndEbook(userIdList, activity.getBook());
-        Page<EbookShelfItem> ebookPurchases = new PageImpl<>(purchaseList, pageable, purchaseList.size());
+        List<EbookShelfItem> shelfItems = ebookShelfRepository.findByUserIdInAndEbook(userIdList, activity.getBook());
+        Page<EbookShelfItem> page = new PageImpl<>(shelfItems, pageable, shelfItems.size());
 
-        return PageResponse.of(ebookPurchases.map(readingProgressMapper::toResponse));
+        return PageResponse.of(page.map(readingProgressMapper::toResponse));
     }
 }

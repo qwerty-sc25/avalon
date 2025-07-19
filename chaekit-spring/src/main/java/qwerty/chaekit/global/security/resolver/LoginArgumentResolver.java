@@ -27,8 +27,7 @@ public class LoginArgumentResolver implements HandlerMethodArgumentResolver {
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
         Class<?> parameterType = parameter.getParameterType();
-        return parameter.hasParameterAnnotation(Login.class)
-                && (parameterType.equals(UserToken.class) || parameterType.equals(PublisherToken.class));
+        return parameter.hasParameterAnnotation(Login.class) && parameterType.equals(UserToken.class);
     }
 
     @Override
@@ -41,10 +40,9 @@ public class LoginArgumentResolver implements HandlerMethodArgumentResolver {
             throwIfAccessTokenInvalid(webRequest);
         }
 
-        Role requiredRole = determineRequiredRole(parameter.getParameterType());
         CustomUserDetails userDetails = getAuthenticatedUserDetails();
 
-        return resolveToken(requiredRole, userDetails, isRequired);
+        return resolveToken(userDetails, isRequired);
     }
 
     private void throwIfAccessTokenInvalid(NativeWebRequest webRequest) {
@@ -62,8 +60,6 @@ public class LoginArgumentResolver implements HandlerMethodArgumentResolver {
     private Role determineRequiredRole(Class<?> parameterType) {
         if (parameterType.equals(UserToken.class)) {
             return Role.ROLE_USER;
-        } else if (parameterType.equals(PublisherToken.class)) {
-            return Role.ROLE_PUBLISHER;
         } else {
             throw new IllegalArgumentException("Unsupported parameter type: " + parameterType);
         }
@@ -80,12 +76,8 @@ public class LoginArgumentResolver implements HandlerMethodArgumentResolver {
         return details;
     }
 
-    private Object resolveToken(Role requiredRole, CustomUserDetails userDetails, boolean isRequired) {
-        if (requiredRole == Role.ROLE_USER) {
-            return resolveUserToken(userDetails, isRequired);
-        } else { // Role.ROLE_PUBLISHER
-            return resolvePublisherToken(userDetails);
-        }
+    private Object resolveToken(CustomUserDetails userDetails, boolean isRequired) {
+        return resolveUserToken(userDetails, isRequired);
     }
 
     private Object resolveUserToken(CustomUserDetails userDetails, boolean isRequired) {
@@ -101,12 +93,4 @@ public class LoginArgumentResolver implements HandlerMethodArgumentResolver {
         }
         return UserToken.anonymous();
     }
-
-    private Object resolvePublisherToken(CustomUserDetails userDetails) {
-        if (userDetails.publisher() == null) {
-            throw new ForbiddenException(ErrorCode.ONLY_PUBLISHER);
-        }
-        return PublisherToken.of(userDetails.member().getId(), userDetails.publisher().getId(), userDetails.member().getEmail());
-    }
-
 }

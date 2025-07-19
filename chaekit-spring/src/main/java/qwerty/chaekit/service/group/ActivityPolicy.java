@@ -37,7 +37,7 @@ public class ActivityPolicy {
             throw new BadRequestException(ErrorCode.ACTIVITY_ALREADY_ENDED);
         }
 
-        ebookPolicy.assertEBookPurchased(user, activity.getBook());
+        ebookPolicy.assertEBookRegistered(user, activity.getBook());
     }
 
     public void assertActivityPeriodValid(long groupId, @Nullable Long activityId, LocalDate startTime, LocalDate endTime) {

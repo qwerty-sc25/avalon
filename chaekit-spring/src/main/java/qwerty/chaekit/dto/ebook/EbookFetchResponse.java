@@ -11,10 +11,9 @@ public record EbookFetchResponse(
         String author,
         String description,
         Long size,
-        boolean isPurchased,
-        int price
+        boolean isOnBookshelf
 ) {
-    public static EbookFetchResponse of(Ebook ebook, String bookCoverImageURL, boolean isPurchased) {
+    public static EbookFetchResponse of(Ebook ebook, String bookCoverImageURL, boolean isOnBookshelf) {
         return EbookFetchResponse.builder()
                 .id(ebook.getId())
                 .title(ebook.getTitle())
@@ -22,8 +21,7 @@ public record EbookFetchResponse(
                 .author(ebook.getAuthor())
                 .description(ebook.getDescription())
                 .size(ebook.getSize())
-                .isPurchased(isPurchased)
-                .price(ebook.getPrice())
+                .isOnBookshelf(isOnBookshelf)
                 .build();
     }
 }

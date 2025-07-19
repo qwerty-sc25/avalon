@@ -7,7 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import qwerty.chaekit.domain.ebook.Ebook;
-import qwerty.chaekit.domain.ebook.purchase.repository.EbookShelfRepository;
+import qwerty.chaekit.domain.ebook.shelf.repository.EbookShelfRepository;
 import qwerty.chaekit.domain.member.user.UserProfile;
 import qwerty.chaekit.global.enums.ErrorCode;
 import qwerty.chaekit.global.exception.ForbiddenException;
@@ -26,8 +26,8 @@ class EbookPolicyTest {
     private EbookShelfRepository ebookShelfRepository;
 
     @Test
-    @DisplayName("이북 구매 확인 성공")
-    void assertEBookPurchased_Success() {
+    @DisplayName("이북 등록 확인 성공")
+    void assertEBookRegistered_Success() {
         // given
         Long userId = 1L;
         Long ebookId = 1L;
@@ -42,12 +42,12 @@ class EbookPolicyTest {
         when(ebookShelfRepository.existsByUserIdAndEbookId(userId, ebookId)).thenReturn(true);
 
         // then
-        ebookPolicy.assertEBookPurchased(user, ebook);
+        ebookPolicy.assertEBookRegistered(user, ebook);
     }
 
     @Test
-    @DisplayName("이북 구매 확인 실패 - 구매하지 않은 이북")
-    void assertEBookPurchased_Failure_NotPurchased() {
+    @DisplayName("이북 등록 확인 실패 - 등록하지 않은 이북")
+    void assertEBookRegistered_Failure_NotRegistered() {
         // given
         Long userId = 1L;
         Long ebookId = 1L;
@@ -62,8 +62,8 @@ class EbookPolicyTest {
         when(ebookShelfRepository.existsByUserIdAndEbookId(userId, ebookId)).thenReturn(false);
 
         // then
-        assertThatThrownBy(() -> ebookPolicy.assertEBookPurchased(user, ebook))
+        assertThatThrownBy(() -> ebookPolicy.assertEBookRegistered(user, ebook))
                 .isInstanceOf(ForbiddenException.class)
-                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.EBOOK_NOT_PURCHASED.getCode());
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.EBOOK_NOT_REGISTERED.getCode());
     }
 } 

@@ -8,3 +8,19 @@ ALTER TABLE ebook_shelf_item
 -- 3. 컬럼 삭제
 ALTER TABLE ebook_shelf_item
     DROP COLUMN credit_usage_transaction_id;
+
+ALTER TABLE ebook
+    DROP COLUMN price,
+    DROP COLUMN publisher_id,
+    DROP FOREIGN KEY FK4c0e4rpnkldvcpvwx4hn2ouu9;
+
+DROP TABLE ebook_request;
+DROP TABLE credit_payment_transaction;
+DROP TABLE credit_usage_transaction;
+DROP TABLE credit_wallet;
+
+ALTER TABLE notification
+    DROP COLUMN publisher_id,
+    DROP FOREIGN KEY FK_notification_publisher;
+
+DROP TABLE publisher_profile;

@@ -19,16 +19,6 @@ public class DiscussionCommentRepositoryImpl implements DiscussionCommentReposit
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public DiscussionComment getReferenceById(Long id) {
-        return commentJpaRepository.getReferenceById(id);
-    }
-
-    @Override
-    public boolean existsById(Long id) {
-        return commentJpaRepository.existsById(id);
-    }
-
-    @Override
     public Optional<DiscussionComment> findById(Long id) {
         return commentJpaRepository.findById(id);
     }
@@ -115,10 +105,5 @@ public class DiscussionCommentRepositoryImpl implements DiscussionCommentReposit
     @Override
     public Long countByParentId(Long parentId) {
         return commentJpaRepository.countByParent_Id(parentId);
-    }
-
-    @Override
-    public Optional<DiscussionComment> findByIdWithParent(Long id) {
-        return commentJpaRepository.findByIdWithRepliesAndParent(id);
     }
 }

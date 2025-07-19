@@ -7,7 +7,7 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import qwerty.chaekit.dto.ebook.EbookFetchResponse;
-import qwerty.chaekit.dto.ebook.purchase.EbookRegisterResponse;
+import qwerty.chaekit.dto.ebook.shelf.EbookRegisterResponse;
 import qwerty.chaekit.dto.page.PageResponse;
 import qwerty.chaekit.global.response.ApiSuccessResponse;
 import qwerty.chaekit.global.security.resolver.Login;
@@ -17,7 +17,7 @@ import qwerty.chaekit.service.ebook.EbookShelfService;
 @RestController
 @RequestMapping("/api/books")
 @RequiredArgsConstructor
-public class EbookPurchaseController {
+public class EbookShelfController {
     public final EbookShelfService ebookShelfService;
 
     @PostMapping("/{bookId}/register")

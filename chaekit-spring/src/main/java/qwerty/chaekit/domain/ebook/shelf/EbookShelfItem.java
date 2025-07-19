@@ -1,4 +1,4 @@
-package qwerty.chaekit.domain.ebook.purchase;
+package qwerty.chaekit.domain.ebook.shelf;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;

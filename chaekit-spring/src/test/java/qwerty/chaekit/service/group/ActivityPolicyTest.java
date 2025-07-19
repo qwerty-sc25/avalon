@@ -68,7 +68,7 @@ class ActivityPolicyTest {
         when(activityMemberRepository.existsByUserAndActivity(user, activity)).thenReturn(false);
 
         assertDoesNotThrow(() -> activityPolicy.assertJoinable(user, activity));
-        verify(ebookPolicy).assertEBookPurchased(user, ebook);
+        verify(ebookPolicy).assertEBookRegistered(user, ebook);
     }
 
     @Test
@@ -128,7 +128,7 @@ class ActivityPolicyTest {
     }
 
     @Test
-    void assertJoinable_ebookNotPurchased() {
+    void assertJoinable_ebookNotRegistered() {
         UserProfile user = UserProfile.builder().id(1L).build();
         ReadingGroup group = ReadingGroup.builder().id(10L).groupLeader(UserProfile.builder().id(2L).build()).isAutoApproval(true).build();
         Ebook ebook = Ebook.builder().id(3L).build();
@@ -143,8 +143,8 @@ class ActivityPolicyTest {
         when(groupMemberRepository.findByUserAndReadingGroupAndAcceptedTrue(user, group))
                 .thenReturn(Optional.of(new GroupMember(group, user)));
         when(activityMemberRepository.existsByUserAndActivity(user, activity)).thenReturn(false);
-        org.mockito.Mockito.doThrow(new BadRequestException(qwerty.chaekit.global.enums.ErrorCode.EBOOK_NOT_PURCHASED))
-                .when(ebookPolicy).assertEBookPurchased(user, ebook);
+        org.mockito.Mockito.doThrow(new BadRequestException(qwerty.chaekit.global.enums.ErrorCode.EBOOK_NOT_REGISTERED))
+                .when(ebookPolicy).assertEBookRegistered(user, ebook);
 
         assertThrows(BadRequestException.class, () -> activityPolicy.assertJoinable(user, activity));
     }

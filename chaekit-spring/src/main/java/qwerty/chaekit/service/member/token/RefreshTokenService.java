@@ -7,8 +7,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import qwerty.chaekit.domain.member.Member;
 import qwerty.chaekit.domain.member.MemberRepository;
-import qwerty.chaekit.domain.member.publisher.PublisherProfile;
-import qwerty.chaekit.domain.member.publisher.PublisherProfileRepository;
 import qwerty.chaekit.domain.member.user.UserProfile;
 import qwerty.chaekit.domain.member.user.UserProfileRepository;
 import qwerty.chaekit.dto.member.token.RefreshTokenRequest;
@@ -30,7 +28,6 @@ public class RefreshTokenService {
     private final MemberRepository memberRepository;
     private final JwtUtil jwtUtil;
     private final UserProfileRepository userProfileRepository;
-    private final PublisherProfileRepository publisherProfileRepository;
     private final RedisTemplate<String, String> redisTemplate;
     private final JwtProperties jwtProperties;
 
@@ -54,9 +51,8 @@ public class RefreshTokenService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new NotFoundException(ErrorCode.MEMBER_NOT_FOUND));
         UserProfile user = userProfileRepository.findByMember_Id(memberId).orElse(null);
-        PublisherProfile publisher = publisherProfileRepository.findByMember_Id(memberId).orElse(null);
 
-        String newAccessToken = jwtUtil.createAccessToken(member, user, publisher);
+        String newAccessToken = jwtUtil.createAccessToken(member, user);
 
         return RefreshTokenResponse.builder()
                 .accessToken(newAccessToken)

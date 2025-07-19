@@ -3,8 +3,6 @@ package qwerty.chaekit.global.init;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import qwerty.chaekit.domain.ebook.credit.wallet.CreditWallet;
-import qwerty.chaekit.domain.ebook.credit.wallet.CreditWalletRepository;
 import qwerty.chaekit.domain.member.Member;
 import qwerty.chaekit.domain.member.MemberRepository;
 import qwerty.chaekit.domain.member.enums.Role;
@@ -20,8 +18,7 @@ public class DummyUserFactory {
     private final MemberRepository memberRepository;
     private final UserProfileRepository userProfileRepository;
     private final MemberJoinHelper memberJoinHelper;
-    private final CreditWalletRepository creditWalletRepository;
-    
+
     public void saveDummyUsers() {
         saveDummyUser(DummyUser.LEADER);
         saveDummyUser(DummyUser.USER1);
@@ -39,16 +36,11 @@ public class DummyUserFactory {
         }
 
         Member userMember = memberJoinHelper.saveMember(email, defaultPassword, Role.ROLE_USER);
-        UserProfile savedUser = userProfileRepository.save(
+        userProfileRepository.save(
                 UserProfile.builder()
                         .member(userMember)
                         .nickname(nickname)
                         .profileImageKey(profileImageKey)
-                        .build()
-        );
-        creditWalletRepository.save(
-                CreditWallet.builder()
-                        .user(savedUser)
                         .build()
         );
         

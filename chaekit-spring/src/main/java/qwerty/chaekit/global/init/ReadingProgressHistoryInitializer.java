@@ -9,8 +9,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import qwerty.chaekit.domain.ebook.history.ReadingProgressHistory;
 import qwerty.chaekit.domain.ebook.history.ReadingProgressHistoryRepository;
-import qwerty.chaekit.domain.ebook.purchase.EbookShelfItem;
-import qwerty.chaekit.domain.ebook.purchase.repository.EbookShelfRepository;
+import qwerty.chaekit.domain.ebook.shelf.EbookShelfItem;
+import qwerty.chaekit.domain.ebook.shelf.repository.EbookShelfRepository;
 import qwerty.chaekit.domain.group.activity.Activity;
 import qwerty.chaekit.domain.group.activity.activitymember.ActivityMember;
 import qwerty.chaekit.domain.group.activity.activitymember.ActivityMemberRepository;
@@ -52,10 +52,10 @@ public class ReadingProgressHistoryInitializer implements ApplicationRunner {
                 );
 
                 if (!alreadyExists) {
-                    Optional<EbookShelfItem> purchaseOpt = ebookShelfRepository.findByUserAndEbook(
+                    Optional<EbookShelfItem> shelfItemOptional = ebookShelfRepository.findByUserAndEbook(
                             member.getUser(), activity.getBook());
 
-                    long percentage = purchaseOpt.map(EbookShelfItem::getPercentage).orElse(0L);
+                    long percentage = shelfItemOptional.map(EbookShelfItem::getPercentage).orElse(0L);
 
                     historyRepository.save(ReadingProgressHistory.builder()
                             .activity(activity)

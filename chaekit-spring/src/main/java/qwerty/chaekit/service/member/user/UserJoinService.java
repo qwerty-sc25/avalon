@@ -3,8 +3,6 @@ package qwerty.chaekit.service.member.user;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import qwerty.chaekit.domain.ebook.credit.wallet.CreditWallet;
-import qwerty.chaekit.domain.ebook.credit.wallet.CreditWalletRepository;
 import qwerty.chaekit.domain.member.Member;
 import qwerty.chaekit.domain.member.enums.Role;
 import qwerty.chaekit.domain.member.user.UserProfile;
@@ -25,7 +23,6 @@ public class UserJoinService {
     private final UserProfileRepository userRepository;
     private final JwtUtil jwtUtil;
     private final RefreshTokenService refreshTokenService;
-    private final CreditWalletRepository creditWalletRepository;
 
     @Transactional
     public LoginResponse join(UserJoinRequest request) {
@@ -38,7 +35,6 @@ public class UserJoinService {
         validateNickname(request.nickname());
         Member member = memberJoinHelper.saveMemberWithVerificationCode(email, password, Role.ROLE_USER, verificationCode);
         UserProfile user = saveUser(request, member, imageFileKey);
-        saveCreditWallet(user);
 
         return toResponse(member, user);
     }
@@ -57,19 +53,10 @@ public class UserJoinService {
                 .build());
     }
 
-    private void saveCreditWallet(UserProfile userProfile) {
-        creditWalletRepository.save(
-                CreditWallet.builder()
-                        .user(userProfile)
-                        .build()
-        );
-    }
-
     private LoginResponse toResponse(Member member, UserProfile user) {
         String accessToken = jwtUtil.createAccessToken(
                 member.getId(),
                 user.getId(),
-                null,
                 member.getEmail(),
                 member.getRole().name()
         );
@@ -85,7 +72,6 @@ public class UserJoinService {
                 .nickname(user.getNickname())
                 .profileImageURL(profileImageKey)
                 .role(Role.ROLE_USER)
-                .firstPaymentBenefit(true)
                 .build();
     }
 }

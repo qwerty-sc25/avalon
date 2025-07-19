@@ -2,8 +2,8 @@ package qwerty.chaekit.mapper;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import qwerty.chaekit.domain.ebook.purchase.EbookShelfItem;
-import qwerty.chaekit.dto.ebook.purchase.ReadingProgressResponse;
+import qwerty.chaekit.domain.ebook.shelf.EbookShelfItem;
+import qwerty.chaekit.dto.ebook.shelf.ReadingProgressResponse;
 import qwerty.chaekit.service.util.FileService;
 
 @Component

@@ -8,11 +8,8 @@ import java.util.Map;
 import java.util.Optional;
 
 public interface DiscussionCommentRepository {
-    DiscussionComment getReferenceById(Long id);
-    boolean existsById(Long id);
     Optional<DiscussionComment> findById(Long id);
     Optional<DiscussionComment> findByIdWithAuthor(Long id);
-    Optional<DiscussionComment> findByIdWithParent(Long id);
 
     DiscussionComment save(DiscussionComment discussionComment);
     void delete(DiscussionComment discussionComment);

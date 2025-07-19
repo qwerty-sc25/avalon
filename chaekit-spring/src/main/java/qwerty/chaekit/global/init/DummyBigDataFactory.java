@@ -6,11 +6,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import qwerty.chaekit.domain.ebook.Ebook;
-import qwerty.chaekit.domain.ebook.credit.usage.CreditUsageTransactionRepository;
-import qwerty.chaekit.domain.ebook.credit.wallet.CreditWallet;
-import qwerty.chaekit.domain.ebook.credit.wallet.CreditWalletRepository;
-import qwerty.chaekit.domain.ebook.purchase.EbookShelfItem;
-import qwerty.chaekit.domain.ebook.purchase.repository.EbookShelfRepository;
+import qwerty.chaekit.domain.ebook.shelf.EbookShelfItem;
+import qwerty.chaekit.domain.ebook.shelf.repository.EbookShelfRepository;
 import qwerty.chaekit.domain.ebook.repository.EbookRepository;
 import qwerty.chaekit.domain.group.ReadingGroup;
 import qwerty.chaekit.domain.group.activity.Activity;
@@ -18,11 +15,8 @@ import qwerty.chaekit.domain.group.activity.repository.ActivityRepository;
 import qwerty.chaekit.domain.group.repository.GroupRepository;
 import qwerty.chaekit.domain.member.Member;
 import qwerty.chaekit.domain.member.enums.Role;
-import qwerty.chaekit.domain.member.publisher.PublisherProfile;
 import qwerty.chaekit.domain.member.user.UserProfile;
 import qwerty.chaekit.domain.member.user.UserProfileRepository;
-import qwerty.chaekit.service.member.admin.AdminService;
-import qwerty.chaekit.service.util.EntityFinder;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -40,10 +34,7 @@ public class DummyBigDataFactory {
     private final GroupRepository groupRepository;
     private final UserProfileRepository userProfileRepository;
     private final EbookRepository ebookRepository;
-    private final AdminService adminService;
-    private final EntityFinder entityFinder;
     private final EbookShelfRepository ebookShelfRepository;
-    private final CreditWalletRepository creditWalletRepository;
     private final ActivityRepository activityRepository;
 
     private final LocalDate startDate = LocalDate.of(2024, 6, 1);
@@ -52,11 +43,8 @@ public class DummyBigDataFactory {
     @Transactional
     public void generateDummyDataForTest() {
         // 1. 출판물 5권 조회 (더미 도서)
-        // 출판사 ID는 관리자 서비스에서 가져옵니다.
-        Long publisherId = adminService.getAdminPublisherId();
-        PublisherProfile publisher = entityFinder.findPublisher(publisherId);
         Random random = new Random();
-        List<Ebook> ebooks = ebookRepository.findAllByPublisher(publisher, PageRequest.of(0, 5))
+        List<Ebook> ebooks = ebookRepository.findAll(PageRequest.of(0, 5))
                 .stream()
                 .toList();
         log.info("더미 도서 데이터가 {}개 조회되었습니다.", ebooks.size());
@@ -72,12 +60,7 @@ public class DummyBigDataFactory {
                 .toList();
 
         // 3. 사용자별 책 3권 무작위 구매
-        CreditWallet savedWallet = creditWalletRepository.save(CreditWallet.builder()
-                .user(users.get(0)) // 더미로 첫 번째 사용자에게 지갑 생성
-                .build());
-        savedWallet.addCredit(10000000L); // 더미 금액 추가
-
-        List<EbookShelfItem> purchases = new ArrayList<>();
+        List<EbookShelfItem> shelfItems = new ArrayList<>();
         for (UserProfile user : users) {
             List<Ebook> randomBooks = getRandomSubset(ebooks, 3);
             for (Ebook book : randomBooks) {
@@ -86,10 +69,10 @@ public class DummyBigDataFactory {
                         .user(user)
                         .build();
                 ep.resetCreatedAt(biasedRandomDate());
-                purchases.add(ep);
+                shelfItems.add(ep);
             }
         }
-        ebookShelfRepository.saveAll(purchases);
+        ebookShelfRepository.saveAll(shelfItems);
 
         // 4. 사용자 중 30명을 랜덤으로 뽑아 모임 생성
         List<Activity> activities = new ArrayList<>();

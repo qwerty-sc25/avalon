@@ -1,4 +1,4 @@
-package qwerty.chaekit.dto.ebook.purchase;
+package qwerty.chaekit.dto.ebook.shelf;
 
 import lombok.Builder;
 

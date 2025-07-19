@@ -6,18 +6,17 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import qwerty.chaekit.domain.ebook.Ebook;
-import qwerty.chaekit.domain.ebook.purchase.EbookShelfItem;
-import qwerty.chaekit.domain.ebook.purchase.repository.EbookShelfRepository;
+import qwerty.chaekit.domain.ebook.shelf.EbookShelfItem;
+import qwerty.chaekit.domain.ebook.shelf.repository.EbookShelfRepository;
 import qwerty.chaekit.domain.ebook.repository.EbookRepository;
 import qwerty.chaekit.domain.member.user.UserProfile;
 import qwerty.chaekit.domain.member.user.UserProfileRepository;
 import qwerty.chaekit.dto.ebook.EbookFetchResponse;
-import qwerty.chaekit.dto.ebook.purchase.EbookRegisterResponse;
+import qwerty.chaekit.dto.ebook.shelf.EbookRegisterResponse;
 import qwerty.chaekit.dto.page.PageResponse;
 import qwerty.chaekit.global.enums.ErrorCode;
 import qwerty.chaekit.global.exception.BadRequestException;
 import qwerty.chaekit.global.exception.NotFoundException;
-import qwerty.chaekit.service.util.EntityFinder;
 import qwerty.chaekit.service.util.FileService;
 
 @Service
@@ -35,11 +34,11 @@ public class EbookShelfService {
         UserProfile buyer = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
 
-        Ebook ebook = ebookRepository.findByIdWithPublisher(ebookId)
+        Ebook ebook = ebookRepository.findById(ebookId)
                 .orElseThrow(() -> new NotFoundException(ErrorCode.EBOOK_NOT_FOUND));
 
         if(ebookShelfRepository.existsByUserIdAndEbookId(userId, ebookId)) {
-            throw new BadRequestException(ErrorCode.EBOOK_ALREADY_PURCHASED);
+            throw new BadRequestException(ErrorCode.EBOOK_ALREADY_REGISTERED);
         }
 
         ebookShelfRepository.save(
@@ -57,12 +56,12 @@ public class EbookShelfService {
     }
 
     public PageResponse<EbookFetchResponse> getMyBooks(Long userId, Pageable pageable) {
-        Page<EbookShelfItem> purchases = ebookShelfRepository.findByUserIdWithEbook(userId, pageable);
+        Page<EbookShelfItem> shelfItems = ebookShelfRepository.findByUserIdWithEbook(userId, pageable);
         return PageResponse.of(
-                purchases.map(
-                purchase -> EbookFetchResponse.of(
-                        purchase.getEbook(),
-                        fileService.convertToPublicImageURL(purchase.getEbook().getCoverImageKey()),
+                shelfItems.map(
+                shelfItem -> EbookFetchResponse.of(
+                        shelfItem.getEbook(),
+                        fileService.convertToPublicImageURL(shelfItem.getEbook().getCoverImageKey()),
                         true
                 )));
     }
