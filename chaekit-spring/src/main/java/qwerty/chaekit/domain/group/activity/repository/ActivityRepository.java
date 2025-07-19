@@ -26,7 +26,7 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
     FROM Activity a
     WHERE a.group.id = :groupId
     """)
-    Page<ActivityWithCountsResponse> findByGroupIdWithCounts(Long groupId, Pageable pageable);
+    Page<ActivityWithCountsResponse> findByGroupIdWithCounts(@Param("groupId") Long groupId, Pageable pageable);
 
     @Query("""
     SELECT new qwerty.chaekit.domain.group.activity.dto.ActivityWithCountsResponse(

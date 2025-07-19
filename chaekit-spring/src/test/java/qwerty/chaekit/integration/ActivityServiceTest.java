@@ -59,6 +59,8 @@ class ActivityServiceTest {
         dummyEbook = testFixtureFactory.createEbook("dummy_ebook", "author", "description", "file_key");
         dummyGroup = testFixtureFactory.createGroup("dummy_group", groupLeader);
 
+        testFixtureFactory.createEbookShelfItem(groupLeader, dummyEbook);
+
     }
 
     @Test

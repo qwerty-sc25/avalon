@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 import qwerty.chaekit.domain.ebook.Ebook;
+import qwerty.chaekit.domain.ebook.shelf.EbookShelfItem;
 import qwerty.chaekit.domain.highlight.Highlight;
 import qwerty.chaekit.domain.highlight.repository.HighlightRepository;
 import qwerty.chaekit.domain.member.user.UserProfile;
@@ -43,12 +44,14 @@ class HighlightServiceTest {
     private UserProfile dummyUser;
     private Ebook dummyEbook;
     private UserToken dummyUserToken;
+    private EbookShelfItem dummyEbookShelfItem;
 
     @BeforeEach
     void setUp() {
         dummyUser = testFixtureFactory.createUser("user_email", "user_nickname");
         dummyUserToken = testFixtureFactory.createUserToken(dummyUser.getMember(), dummyUser);
-
+        dummyEbook = testFixtureFactory.createEbook("dummy_ebook", "Dummy Author", "description", "dummy_file_key");
+        dummyEbookShelfItem = testFixtureFactory.createEbookShelfItem(dummyUser, dummyEbook);
     }
 
     @Test

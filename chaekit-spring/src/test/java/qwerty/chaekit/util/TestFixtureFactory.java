@@ -3,6 +3,7 @@ package qwerty.chaekit.util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import qwerty.chaekit.domain.ebook.Ebook;
+import qwerty.chaekit.domain.ebook.shelf.EbookShelfItem;
 import qwerty.chaekit.domain.ebook.shelf.repository.EbookShelfRepository;
 import qwerty.chaekit.domain.ebook.repository.EbookRepository;
 import qwerty.chaekit.domain.group.repository.GroupRepository;
@@ -20,6 +21,8 @@ public class TestFixtureFactory {
     @Autowired private UserProfileRepository userProfileRepository;
     @Autowired private EbookRepository ebookRepository;
     @Autowired private GroupRepository groupRepository;
+    @Autowired
+    private EbookShelfRepository ebookShelfRepository;
 
     public UserProfile createUser(String email, String nickname) {
         Member member = createMember(email, Role.ROLE_USER);
@@ -64,5 +67,9 @@ public class TestFixtureFactory {
                         .description("Test group description")
                         .build()
         );
+    }
+
+    public EbookShelfItem createEbookShelfItem(UserProfile user, Ebook ebook) {
+        return ebookShelfRepository.save(new EbookShelfItem(ebook, user, null, 0L));
     }
 }
