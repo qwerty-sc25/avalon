@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DiscussionService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">chaekit</a> &gt; <a href="index.source.html" class="el_package">qwerty.chaekit.service.group</a> &gt; <span class="el_source">DiscussionService.java</span></div><h1>DiscussionService.java</h1><pre class="source lang-java linenums">package qwerty.chaekit.service.group;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import qwerty.chaekit.domain.group.activity.Activity;
+import qwerty.chaekit.domain.group.activity.discussion.Discussion;
+import qwerty.chaekit.domain.group.activity.discussion.comment.dto.DiscussionCommentCountDto;
+import qwerty.chaekit.domain.group.activity.discussion.comment.repository.DiscussionCommentRepository;
+import qwerty.chaekit.domain.group.activity.discussion.repository.DiscussionRepository;
+import qwerty.chaekit.domain.highlight.Highlight;
+import qwerty.chaekit.domain.highlight.repository.HighlightRepository;
+import qwerty.chaekit.domain.member.user.UserProfile;
+import qwerty.chaekit.dto.group.activity.discussion.DiscussionDetailResponse;
+import qwerty.chaekit.dto.group.activity.discussion.DiscussionFetchResponse;
+import qwerty.chaekit.dto.group.activity.discussion.DiscussionPatchRequest;
+import qwerty.chaekit.dto.group.activity.discussion.DiscussionPostRequest;
+import qwerty.chaekit.dto.page.PageResponse;
+import qwerty.chaekit.global.enums.ErrorCode;
+import qwerty.chaekit.global.exception.BadRequestException;
+import qwerty.chaekit.global.exception.NotFoundException;
+import qwerty.chaekit.global.security.resolver.UserToken;
+import qwerty.chaekit.mapper.DiscussionMapper;
+import qwerty.chaekit.service.util.EntityFinder;
+
+import java.util.List;
+import java.util.Map;
+
+@Service
+@RequiredArgsConstructor
+@Transactional
+public class DiscussionService {
+    private final DiscussionRepository discussionRepository;
+    private final DiscussionMapper discussionMapper;
+    private final DiscussionCommentRepository discussionCommentRepository;
+    private final HighlightRepository highlightRepository;
+    private final ActivityPolicy activityPolicy;
+    private final EntityFinder entityFinder;
+
+
+    @Transactional(readOnly = true)
+    public PageResponse&lt;DiscussionFetchResponse&gt; getDiscussions(UserToken userToken, Pageable pageable, Long activityId) {
+<span class="fc" id="L45">        Long userId = userToken.userId();</span>
+
+<span class="fc" id="L47">        activityPolicy.assertJoined(userId, activityId);</span>
+<span class="fc" id="L48">        Page&lt;Discussion&gt; discussions = discussionRepository.findByActivityId(activityId, pageable);</span>
+<span class="fc" id="L49">        List&lt;Long&gt; debateIds = discussions.stream()</span>
+<span class="fc" id="L50">                .filter(Discussion::isDebate)</span>
+<span class="fc" id="L51">                .map(Discussion::getId)</span>
+<span class="fc" id="L52">                .toList();</span>
+        
+<span class="fc" id="L54">        List&lt;Long&gt; nonDebateIds = discussions.stream()</span>
+<span class="pc bpc" id="L55" title="1 of 2 branches missed.">                .filter(d -&gt; !d.isDebate())</span>
+<span class="fc" id="L56">                .map(Discussion::getId)</span>
+<span class="fc" id="L57">                .toList();</span>
+        
+        // Get the count of comments for each discussion
+        // 찬반 토론: stance별로
+<span class="fc" id="L61">        Map&lt;Long, DiscussionCommentCountDto&gt; debateCounts = discussionCommentRepository.countStanceCommentsByDiscussionIds(debateIds);</span>
+
+        // 일반 토론: 전체 count만
+<span class="fc" id="L64">        Map&lt;Long, DiscussionCommentCountDto&gt; nonDebateCounts = discussionCommentRepository.countCommentsByDiscussionIds(nonDebateIds);</span>
+
+<span class="fc" id="L66">        return PageResponse.of(discussions.map(discussion -&gt; {</span>
+<span class="pc bpc" id="L67" title="1 of 2 branches missed.">            DiscussionCommentCountDto dto = discussion.isDebate()</span>
+<span class="nc" id="L68">                    ? debateCounts.getOrDefault(discussion.getId(), new DiscussionCommentCountDto(0, 0, 0, 0))</span>
+<span class="fc" id="L69">                    : nonDebateCounts.getOrDefault(discussion.getId(), new DiscussionCommentCountDto(0, 0, 0, 0));</span>
+
+<span class="fc" id="L71">            return discussionMapper.toFetchResponse(</span>
+                    discussion,
+<span class="fc" id="L73">                    dto.totalCount(),</span>
+                    userId,
+<span class="fc" id="L75">                    dto.agreeCount(),</span>
+<span class="fc" id="L76">                    dto.disagreeCount(),</span>
+<span class="fc" id="L77">                    dto.neutralCount()</span>
+            );
+        }));
+    }
+
+    public DiscussionFetchResponse createDiscussion(UserToken userToken, Long activityId, DiscussionPostRequest request) {
+<span class="fc" id="L83">        UserProfile user = entityFinder.findUser(userToken.userId());</span>
+<span class="fc" id="L84">        Activity activity = entityFinder.findActivity(activityId);</span>
+
+<span class="fc" id="L86">        activityPolicy.assertJoined(user, activity);</span>
+
+<span class="fc" id="L88">        Discussion discussion = Discussion.builder()</span>
+<span class="fc" id="L89">                .activity(activity)</span>
+<span class="fc" id="L90">                .title(request.title())</span>
+<span class="fc" id="L91">                .content(request.content())</span>
+<span class="fc" id="L92">                .author(user)</span>
+<span class="fc" id="L93">                .isDebate(request.isDebate())</span>
+<span class="fc" id="L94">                .build();</span>
+
+        // 토론에 연결된 하이라이트 추가
+<span class="fc" id="L97">        List&lt;Long&gt; highlightIds = request.highlightIds();</span>
+
+<span class="fc" id="L99">        setDiscussionHighlightLinks(highlightIds, discussion);</span>
+
+<span class="fc" id="L101">        discussionRepository.save(discussion);</span>
+
+<span class="fc" id="L103">        return discussionMapper.toFetchResponse(discussion, 0L, user.getId(), 0L, 0L, 0L);</span>
+    }
+
+    @Transactional(readOnly = true)
+    public DiscussionDetailResponse getDiscussionDetail(UserToken userToken, Long discussionId) {
+<span class="fc" id="L108">        Long userId = userToken.userId();</span>
+
+<span class="fc" id="L110">        Discussion discussion = discussionRepository.findByIdWithAuthorAndComments(discussionId)</span>
+<span class="pc" id="L111">                .orElseThrow(() -&gt; new NotFoundException(ErrorCode.DISCUSSION_NOT_FOUND));</span>
+<span class="fc" id="L112">        Long commentCount = (long) discussion.getComments().size();</span>
+
+<span class="fc" id="L114">        activityPolicy.assertJoined(userId, discussion.getActivity().getId());</span>
+
+<span class="fc" id="L116">        return discussionMapper.toDetailResponse(discussion, commentCount, userId);</span>
+    }
+
+    public DiscussionFetchResponse updateDiscussion(UserToken userToken, Long discussionId, DiscussionPatchRequest request) {
+<span class="fc" id="L120">        Long userId = userToken.userId();</span>
+
+<span class="fc" id="L122">        Discussion discussion = getMyDiscussionById(userId, discussionId);</span>
+<span class="fc" id="L123">        Long commentCount = discussionCommentRepository.countCommentsByDiscussionId(discussion.getId());</span>
+
+<span class="fc" id="L125">        discussion.update(request.title(), request.content());</span>
+
+<span class="fc" id="L127">        List&lt;Long&gt; highlightIds = request.highlightIds();</span>
+
+<span class="fc" id="L129">        setDiscussionHighlightLinks(highlightIds, discussion);</span>
+
+<span class="fc" id="L131">        return discussionMapper.toFetchResponse(discussion, commentCount, userId, -1L, -1L, -1L);</span>
+    }
+
+    public void deleteDiscussion(UserToken userToken, Long discussionId) {
+<span class="fc" id="L135">        Long userId = userToken.userId();</span>
+
+<span class="fc" id="L137">        Discussion discussion = getMyDiscussionById(userId, discussionId);</span>
+        
+<span class="pc bpc" id="L139" title="1 of 2 branches missed.">        if (!discussion.getComments().isEmpty()) {</span>
+<span class="nc" id="L140">            throw new BadRequestException(ErrorCode.DISCUSSION_HAS_COMMENTS);</span>
+        }
+
+<span class="fc" id="L143">        discussionRepository.delete(discussion);</span>
+<span class="fc" id="L144">    }</span>
+
+    private Discussion getMyDiscussionById(Long userId, Long discussionId) {
+<span class="fc" id="L147">        UserProfile user = entityFinder.findUser(userId);</span>
+<span class="fc" id="L148">        Discussion discussion = entityFinder.findDiscussion(discussionId);</span>
+<span class="pc bpc" id="L149" title="1 of 2 branches missed.">        if (!discussion.isAuthor(user)) {</span>
+<span class="nc" id="L150">            throw new BadRequestException(ErrorCode.DISCUSSION_NOT_YOURS);</span>
+        }
+<span class="fc" id="L152">        return discussion;</span>
+    }
+
+    private void setDiscussionHighlightLinks(List&lt;Long&gt; highlightIds, Discussion discussion) {
+<span class="fc bfc" id="L156" title="All 2 branches covered.">        if (highlightIds != null) {</span>
+<span class="fc" id="L157">            long count = highlightRepository.countByIdsAndActivity(highlightIds, discussion.getActivity());</span>
+<span class="pc bpc" id="L158" title="1 of 2 branches missed.">            if (count != highlightIds.size()) {</span>
+<span class="nc" id="L159">                throw new BadRequestException(ErrorCode.HIGHLIGHT_NOT_FOUND);</span>
+            }
+<span class="fc" id="L161">            discussion.resetHighlights();</span>
+<span class="pc" id="L162">            highlightIds.forEach(highlightId -&gt; discussion.addHighlight(Highlight.builder().id(highlightId).build()));</span>
+        }
+<span class="fc" id="L164">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

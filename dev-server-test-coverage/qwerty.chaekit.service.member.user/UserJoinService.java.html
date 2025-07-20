@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserJoinService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">chaekit</a> &gt; <a href="index.source.html" class="el_package">qwerty.chaekit.service.member.user</a> &gt; <span class="el_source">UserJoinService.java</span></div><h1>UserJoinService.java</h1><pre class="source lang-java linenums">package qwerty.chaekit.service.member.user;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import qwerty.chaekit.domain.member.Member;
+import qwerty.chaekit.domain.member.enums.Role;
+import qwerty.chaekit.domain.member.user.UserProfile;
+import qwerty.chaekit.domain.member.user.UserProfileRepository;
+import qwerty.chaekit.dto.member.LoginResponse;
+import qwerty.chaekit.dto.member.UserJoinRequest;
+import qwerty.chaekit.global.enums.ErrorCode;
+import qwerty.chaekit.global.exception.BadRequestException;
+import qwerty.chaekit.global.jwt.JwtUtil;
+import qwerty.chaekit.service.member.MemberJoinHelper;
+import qwerty.chaekit.service.member.token.RefreshTokenService;
+
+@Service
+@Transactional
+@RequiredArgsConstructor
+public class UserJoinService {
+    private final MemberJoinHelper memberJoinHelper;
+    private final UserProfileRepository userRepository;
+    private final JwtUtil jwtUtil;
+    private final RefreshTokenService refreshTokenService;
+
+    @Transactional
+    public LoginResponse join(UserJoinRequest request) {
+<span class="nc" id="L29">        String email = request.email();</span>
+<span class="nc" id="L30">        String password = request.password();</span>
+<span class="nc" id="L31">        String verificationCode = request.verificationCode();</span>
+
+<span class="nc" id="L33">        String imageFileKey = memberJoinHelper.uploadProfileImage(request.profileImage());</span>
+
+<span class="nc" id="L35">        validateNickname(request.nickname());</span>
+<span class="nc" id="L36">        Member member = memberJoinHelper.saveMemberWithVerificationCode(email, password, Role.ROLE_USER, verificationCode);</span>
+<span class="nc" id="L37">        UserProfile user = saveUser(request, member, imageFileKey);</span>
+
+<span class="nc" id="L39">        return toResponse(member, user);</span>
+    }
+
+    private void validateNickname(String nickname) {
+<span class="nc bnc" id="L43" title="All 2 branches missed.">        if (userRepository.existsByNickname(nickname)) {</span>
+<span class="nc" id="L44">            throw new BadRequestException(ErrorCode.NICKNAME_ALREADY_EXISTS);</span>
+        }
+<span class="nc" id="L46">    }</span>
+
+    private UserProfile saveUser(UserJoinRequest request, Member member, String imageFileKey) {
+<span class="nc" id="L49">        return userRepository.save(UserProfile.builder()</span>
+<span class="nc" id="L50">                .member(member)</span>
+<span class="nc" id="L51">                .nickname(request.nickname())</span>
+<span class="nc" id="L52">                .profileImageKey(imageFileKey)</span>
+<span class="nc" id="L53">                .build());</span>
+    }
+
+    private LoginResponse toResponse(Member member, UserProfile user) {
+<span class="nc" id="L57">        String accessToken = jwtUtil.createAccessToken(</span>
+<span class="nc" id="L58">                member.getId(),</span>
+<span class="nc" id="L59">                user.getId(),</span>
+<span class="nc" id="L60">                member.getEmail(),</span>
+<span class="nc" id="L61">                member.getRole().name()</span>
+        );
+<span class="nc" id="L63">        String refreshToken = refreshTokenService.issueRefreshToken(member.getId());</span>
+<span class="nc" id="L64">        String profileImageKey = memberJoinHelper.convertToPublicImageURL(user.getProfileImageKey());</span>
+
+<span class="nc" id="L66">        return LoginResponse.builder()</span>
+<span class="nc" id="L67">                .memberId(member.getId())</span>
+<span class="nc" id="L68">                .userId(user.getId())</span>
+<span class="nc" id="L69">                .refreshToken(refreshToken)</span>
+<span class="nc" id="L70">                .accessToken(accessToken)</span>
+<span class="nc" id="L71">                .email(member.getEmail())</span>
+<span class="nc" id="L72">                .nickname(user.getNickname())</span>
+<span class="nc" id="L73">                .profileImageURL(profileImageKey)</span>
+<span class="nc" id="L74">                .role(Role.ROLE_USER)</span>
+<span class="nc" id="L75">                .build();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

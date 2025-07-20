@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GroupMember.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">chaekit</a> &gt; <a href="index.source.html" class="el_package">qwerty.chaekit.domain.group.groupmember</a> &gt; <span class="el_source">GroupMember.java</span></div><h1>GroupMember.java</h1><pre class="source lang-java linenums">package qwerty.chaekit.domain.group.groupmember;
+
+import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import qwerty.chaekit.domain.BaseEntity;
+import qwerty.chaekit.domain.group.ReadingGroup;
+import qwerty.chaekit.domain.member.user.UserProfile;
+
+import java.time.LocalDateTime;
+
+@Entity
+@Getter
+@Table(name = &quot;group_member&quot;)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class GroupMember extends BaseEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = &quot;group_id&quot;, nullable = false)
+    private ReadingGroup readingGroup;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name =&quot;user_id&quot;, nullable = false)
+    private UserProfile user;
+
+<span class="fc" id="L31">    @Column(name = &quot;is_accepted&quot;, nullable = false)</span>
+    private boolean accepted = false;
+
+    private LocalDateTime approvedAt;
+
+    @Builder
+<span class="fc" id="L37">    public GroupMember(ReadingGroup readingGroup, UserProfile user) {</span>
+<span class="fc" id="L38">        this.readingGroup = readingGroup;</span>
+<span class="fc" id="L39">        this.user = user;</span>
+<span class="fc" id="L40">        this.accepted = false;  // 초기에는 미승인 상태</span>
+<span class="fc" id="L41">    }</span>
+
+    public ReadingGroup getGroup() {
+<span class="fc" id="L44">        return this.readingGroup;</span>
+    }
+
+    public UserProfile getMember() {
+<span class="fc" id="L48">        return this.user;</span>
+    }
+
+    public void approve() {
+<span class="fc" id="L52">        this.accepted = true;</span>
+<span class="fc" id="L53">        this.approvedAt = LocalDateTime.now();</span>
+<span class="fc" id="L54">    }</span>
+
+    public void reject() {
+<span class="nc" id="L57">        this.accepted = false;</span>
+<span class="nc" id="L58">    }</span>
+
+    public boolean matchesUser(UserProfile user) {
+<span class="fc" id="L61">        return matchesUserId(user.getId());</span>
+    }
+    public boolean matchesUserId(Long userId) {
+<span class="fc" id="L64">        return this.user.getId().equals(userId);</span>
+    }
+    
+    public boolean isLeader(){
+<span class="fc" id="L68">        return readingGroup.isLeader(user);</span>
+    }
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>
