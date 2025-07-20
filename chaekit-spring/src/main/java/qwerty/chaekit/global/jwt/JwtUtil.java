@@ -8,7 +8,6 @@ import jakarta.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import qwerty.chaekit.domain.member.Member;
-import qwerty.chaekit.domain.member.publisher.PublisherProfile;
 import qwerty.chaekit.domain.member.user.UserProfile;
 import qwerty.chaekit.global.properties.JwtProperties;
 
@@ -62,21 +61,18 @@ public class JwtUtil {
     }
     public String createAccessToken(
             Member member,
-            @Nullable UserProfile user,
-            @Nullable PublisherProfile publisher
+            @Nullable UserProfile user
     ) {
         Long userId = user != null ? user.getId() : null;
-        Long publisherId = publisher != null ? publisher.getId() : null;
-        return createAccessToken(member.getId(), userId, publisherId, member.getEmail(), member.getRole().name());
+        return createAccessToken(member.getId(), userId, member.getEmail(), member.getRole().name());
     }
 
-    public String createAccessToken(Long memberId, Long userId, Long publisherId, String email, String role) {
+    public String createAccessToken(Long memberId, Long userId, String email, String role) {
         return createToken(
                 builder -> builder
                         .claim("type", "access")
                         .claim("memberId", memberId)
                         .claim("userId", userId)
-                        .claim("publisherId", publisherId)
                         .claim("email", email)
                         .claim("role", role),
                 jwtProperties.expirationMs()

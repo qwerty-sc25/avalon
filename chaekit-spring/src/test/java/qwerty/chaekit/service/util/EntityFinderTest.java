@@ -7,8 +7,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import qwerty.chaekit.domain.ebook.Ebook;
 import qwerty.chaekit.domain.ebook.repository.EbookRepository;
-import qwerty.chaekit.domain.ebook.request.EbookRequest;
-import qwerty.chaekit.domain.ebook.request.EbookRequestRepository;
 import qwerty.chaekit.domain.group.ReadingGroup;
 import qwerty.chaekit.domain.group.activity.Activity;
 import qwerty.chaekit.domain.group.activity.discussion.Discussion;
@@ -19,8 +17,6 @@ import qwerty.chaekit.domain.group.activity.repository.ActivityRepository;
 import qwerty.chaekit.domain.group.repository.GroupRepository;
 import qwerty.chaekit.domain.highlight.Highlight;
 import qwerty.chaekit.domain.highlight.repository.HighlightRepository;
-import qwerty.chaekit.domain.member.publisher.PublisherProfile;
-import qwerty.chaekit.domain.member.publisher.PublisherProfileRepository;
 import qwerty.chaekit.domain.member.user.UserProfile;
 import qwerty.chaekit.domain.member.user.UserProfileRepository;
 import qwerty.chaekit.global.exception.NotFoundException;
@@ -41,8 +37,6 @@ class EntityFinderTest {
     @Mock
     private UserProfileRepository userRepository;
     @Mock
-    private PublisherProfileRepository publisherRepository;
-    @Mock
     private EbookRepository ebookRepository;
     @Mock
     private ActivityRepository activityRepository;
@@ -54,8 +48,6 @@ class EntityFinderTest {
     private DiscussionRepository discussionRepository;
     @Mock
     private DiscussionCommentRepository discussionCommentRepository;
-    @Mock
-    private EbookRequestRepository ebookRequestRepository;
 
     @Test
     void findUser_성공() {
@@ -81,32 +73,6 @@ class EntityFinderTest {
         assertThatThrownBy(() -> entityFinder.findUser(userId))
             .isInstanceOf(NotFoundException.class)
             .hasFieldOrPropertyWithValue("errorCode", USER_NOT_FOUND.getCode());
-    }
-
-    @Test
-    void findPublisher_성공() {
-        // given
-        Long publisherId = 1L;
-        PublisherProfile expectedPublisher = PublisherProfile.builder().id(publisherId).build();
-        when(publisherRepository.findById(publisherId)).thenReturn(Optional.of(expectedPublisher));
-
-        // when
-        PublisherProfile result = entityFinder.findPublisher(publisherId);
-
-        // then
-        assertThat(result).isEqualTo(expectedPublisher);
-    }
-
-    @Test
-    void findPublisher_실패_존재하지_않음() {
-        // given
-        Long publisherId = 1L;
-        when(publisherRepository.findById(publisherId)).thenReturn(Optional.empty());
-
-        // when & then
-        assertThatThrownBy(() -> entityFinder.findPublisher(publisherId))
-            .isInstanceOf(NotFoundException.class)
-            .hasFieldOrPropertyWithValue("errorCode", PUBLISHER_NOT_FOUND.getCode());
     }
 
     @Test
@@ -263,31 +229,5 @@ class EntityFinderTest {
         assertThatThrownBy(() -> entityFinder.findDiscussionComment(commentId))
             .isInstanceOf(NotFoundException.class)
             .hasFieldOrPropertyWithValue("errorCode", DISCUSSION_COMMENT_NOT_FOUND.getCode());
-    }
-
-    @Test
-    void findEbookRequest_성공() {
-        // given
-        Long requestId = 1L;
-        EbookRequest expectedRequest = EbookRequest.builder().id(requestId).build();
-        when(ebookRequestRepository.findById(requestId)).thenReturn(Optional.of(expectedRequest));
-
-        // when
-        EbookRequest result = entityFinder.findEbookRequest(requestId);
-
-        // then
-        assertThat(result).isEqualTo(expectedRequest);
-    }
-
-    @Test
-    void findEbookRequest_실패_존재하지_않음() {
-        // given
-        Long requestId = 1L;
-        when(ebookRequestRepository.findById(requestId)).thenReturn(Optional.empty());
-
-        // when & then
-        assertThatThrownBy(() -> entityFinder.findEbookRequest(requestId))
-            .isInstanceOf(NotFoundException.class)
-            .hasFieldOrPropertyWithValue("errorCode", EBOOK_REQUEST_NOT_FOUND.getCode());
     }
 } 

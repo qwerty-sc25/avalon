@@ -2,10 +2,8 @@ package qwerty.chaekit.global.security.util;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import qwerty.chaekit.domain.ebook.credit.wallet.CreditWalletRepository;
 import qwerty.chaekit.domain.member.Member;
 import qwerty.chaekit.domain.member.enums.Role;
-import qwerty.chaekit.domain.member.publisher.PublisherProfile;
 import qwerty.chaekit.domain.member.user.UserProfile;
 import qwerty.chaekit.dto.member.LoginResponse;
 import qwerty.chaekit.global.jwt.JwtUtil;
@@ -19,7 +17,6 @@ public class LoginResponseFactory {
     private final JwtUtil jwtUtil;
     private final RefreshTokenService refreshTokenService;
     private final FileService fileService;
-    private final CreditWalletRepository creditWalletRepository;
 
     public LoginResponse createLoginResponse(CustomUserDetails customUserDetails) {
         Member member = customUserDetails.member();
@@ -28,15 +25,10 @@ public class LoginResponseFactory {
         }
         
         UserProfile user = customUserDetails.user();
-        PublisherProfile publisher = customUserDetails.publisher();
         String profileImageKey = null;
         Long memberId = member.getId();
-        Long publisherId = null;
         Long userId = null;
-        if (publisher != null) {
-            profileImageKey = publisher.getProfileImageKey();
-            publisherId = publisher.getId();
-        }
+
         if (user != null) {
             profileImageKey = user.getProfileImageKey();
             userId = user.getId();
@@ -46,8 +38,7 @@ public class LoginResponseFactory {
         Role role = member.getRole();
 
         String refreshToken = refreshTokenService.issueRefreshToken(memberId);
-        String accessToken = jwtUtil.createAccessToken(memberId, userId, publisherId, member.getEmail(), role.name());
-        boolean firstPaymentBenefit = creditWalletRepository.existsByUserAndPaymentTransactionsEmpty(user);
+        String accessToken = jwtUtil.createAccessToken(memberId, userId, member.getEmail(), role.name());
 
         return LoginResponse.builder()
                 .refreshToken(refreshToken)
@@ -56,11 +47,8 @@ public class LoginResponseFactory {
                 .email(member.getEmail())
                 .userId(user != null ? user.getId() : null)
                 .nickname(user != null ? user.getNickname() : null)
-                .publisherId(publisher != null ? publisher.getId() : null)
-                .publisherName(publisher != null ? publisher.getPublisherName() : null)
                 .profileImageURL(profileImageURL)
                 .role(role)
-                .firstPaymentBenefit(firstPaymentBenefit)
                 .build();
     }
 }

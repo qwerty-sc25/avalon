@@ -5,8 +5,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import qwerty.chaekit.domain.ebook.Ebook;
 import qwerty.chaekit.domain.ebook.repository.EbookRepository;
-import qwerty.chaekit.domain.ebook.request.EbookRequest;
-import qwerty.chaekit.domain.ebook.request.EbookRequestRepository;
 import qwerty.chaekit.domain.group.ReadingGroup;
 import qwerty.chaekit.domain.group.activity.Activity;
 import qwerty.chaekit.domain.group.activity.discussion.Discussion;
@@ -17,8 +15,6 @@ import qwerty.chaekit.domain.group.activity.repository.ActivityRepository;
 import qwerty.chaekit.domain.group.repository.GroupRepository;
 import qwerty.chaekit.domain.highlight.Highlight;
 import qwerty.chaekit.domain.highlight.repository.HighlightRepository;
-import qwerty.chaekit.domain.member.publisher.PublisherProfile;
-import qwerty.chaekit.domain.member.publisher.PublisherProfileRepository;
 import qwerty.chaekit.domain.member.user.UserProfile;
 import qwerty.chaekit.domain.member.user.UserProfileRepository;
 import qwerty.chaekit.global.exception.NotFoundException;
@@ -31,23 +27,16 @@ import static qwerty.chaekit.global.enums.ErrorCode.*;
 public class EntityFinder {
 
     private final UserProfileRepository userRepository;
-    private final PublisherProfileRepository publisherRepository;
     private final EbookRepository ebookRepository;
     private final ActivityRepository activityRepository;
     private final GroupRepository groupRepository;
     private final HighlightRepository highlightRepository;
     private final DiscussionRepository discussionRepository;
     private final DiscussionCommentRepository discussionCommentRepository;
-    private final EbookRequestRepository ebookRequestRepository;
 
     public UserProfile findUser(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND));
-    }
-
-    public PublisherProfile findPublisher(Long id) {
-        return publisherRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(PUBLISHER_NOT_FOUND));
     }
 
     public Ebook findEbook(Long id) {
@@ -78,10 +67,5 @@ public class EntityFinder {
     public DiscussionComment findDiscussionComment(Long id) {
         return discussionCommentRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(DISCUSSION_COMMENT_NOT_FOUND));
-    }
-    
-    public EbookRequest findEbookRequest(Long id) {
-        return ebookRequestRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(EBOOK_REQUEST_NOT_FOUND));
     }
 }

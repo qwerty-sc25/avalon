@@ -10,15 +10,14 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import qwerty.chaekit.domain.ebook.Ebook;
-import qwerty.chaekit.domain.ebook.purchase.EbookPurchase;
-import qwerty.chaekit.domain.ebook.purchase.repository.EbookPurchaseRepository;
+import qwerty.chaekit.domain.ebook.shelf.EbookShelfItem;
+import qwerty.chaekit.domain.ebook.shelf.repository.EbookShelfRepository;
 import qwerty.chaekit.domain.group.activity.Activity;
 import qwerty.chaekit.domain.group.activity.activitymember.ActivityMember;
 import qwerty.chaekit.domain.group.activity.activitymember.ActivityMemberRepository;
-import qwerty.chaekit.domain.member.publisher.PublisherProfile;
 import qwerty.chaekit.domain.member.user.UserProfile;
-import qwerty.chaekit.dto.ebook.purchase.ReadingProgressRequest;
-import qwerty.chaekit.dto.ebook.purchase.ReadingProgressResponse;
+import qwerty.chaekit.dto.ebook.shelf.ReadingProgressRequest;
+import qwerty.chaekit.dto.ebook.shelf.ReadingProgressResponse;
 import qwerty.chaekit.dto.page.PageResponse;
 import qwerty.chaekit.global.enums.ErrorCode;
 import qwerty.chaekit.global.exception.ForbiddenException;
@@ -31,7 +30,6 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -41,7 +39,7 @@ class ReadingProgressServiceTest {
     private ReadingProgressService readingProgressService;
 
     @Mock
-    private EbookPurchaseRepository ebookPurchaseRepository;
+    private EbookShelfRepository ebookShelfRepository;
 
     @Mock
     private ActivityMemberRepository activityMemberRepository;
@@ -68,19 +66,13 @@ class ReadingProgressServiceTest {
                 .id(userId)
                 .build();
 
-        PublisherProfile publisher = PublisherProfile.builder()
-                .id(1L)
-                .publisherName("Test Publisher")
-                .build();
-
         Ebook ebook = Ebook.builder()
                 .id(bookId)
                 .title("Test Book")
                 .author("Test Author")
-                .publisher(publisher)
                 .build();
 
-        EbookPurchase ebookPurchase = EbookPurchase.builder()
+        EbookShelfItem ebookShelfItem = EbookShelfItem.builder()
                 .user(user)
                 .ebook(ebook)
                 .build();
@@ -88,18 +80,18 @@ class ReadingProgressServiceTest {
         // when
         when(entityFinder.findUser(userId)).thenReturn(user);
         when(entityFinder.findEbook(bookId)).thenReturn(ebook);
-        when(ebookPurchaseRepository.findByUserAndEbook(user, ebook)).thenReturn(Optional.of(ebookPurchase));
+        when(ebookShelfRepository.findByUserAndEbook(user, ebook)).thenReturn(Optional.of(ebookShelfItem));
 
         readingProgressService.saveMyProgress(userToken, bookId, request);
 
         // then
-        assertThat(ebookPurchase.getCfi()).isEqualTo(cfi);
-        assertThat(ebookPurchase.getPercentage()).isEqualTo(percentage);
+        assertThat(ebookShelfItem.getCfi()).isEqualTo(cfi);
+        assertThat(ebookShelfItem.getPercentage()).isEqualTo(percentage);
     }
 
     @Test
-    @DisplayName("독서 진행도 저장 실패 - 구매하지 않은 이북")
-    void saveMyProgress_Failure_NotPurchased() {
+    @DisplayName("독서 진행도 저장 실패 - 등록하지 않은 이북")
+    void saveMyProgress_Failure_NotRegistered() {
         // given
         Long userId = 1L;
         Long bookId = 1L;
@@ -113,27 +105,21 @@ class ReadingProgressServiceTest {
                 .id(userId)
                 .build();
 
-        PublisherProfile publisher = PublisherProfile.builder()
-                .id(1L)
-                .publisherName("Test Publisher")
-                .build();
-
         Ebook ebook = Ebook.builder()
                 .id(bookId)
                 .title("Test Book")
                 .author("Test Author")
-                .publisher(publisher)
                 .build();
 
         // when
         when(entityFinder.findUser(userId)).thenReturn(user);
         when(entityFinder.findEbook(bookId)).thenReturn(ebook);
-        when(ebookPurchaseRepository.findByUserAndEbook(user, ebook)).thenReturn(Optional.empty());
+        when(ebookShelfRepository.findByUserAndEbook(user, ebook)).thenReturn(Optional.empty());
 
         // then
         assertThatThrownBy(() -> readingProgressService.saveMyProgress(userToken, bookId, request))
                 .isInstanceOf(ForbiddenException.class)
-                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.EBOOK_NOT_PURCHASED.getCode());
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.EBOOK_NOT_REGISTERED.getCode());
     }
 
     @Test
@@ -151,23 +137,17 @@ class ReadingProgressServiceTest {
                 .id(userId)
                 .build();
 
-        PublisherProfile publisher = PublisherProfile.builder()
-                .id(1L)
-                .publisherName("Test Publisher")
-                .build();
-
         Ebook ebook = Ebook.builder()
                 .id(bookId)
                 .title("Test Book")
                 .author("Test Author")
-                .publisher(publisher)
                 .build();
 
-        EbookPurchase ebookPurchase = EbookPurchase.builder()
+        EbookShelfItem ebookShelfItem = EbookShelfItem.builder()
                 .user(user)
                 .ebook(ebook)
                 .build();
-        ebookPurchase.saveProgress(cfi, percentage);
+        ebookShelfItem.saveProgress(cfi, percentage);
 
         ReadingProgressResponse expectedResponse = ReadingProgressResponse.builder()
                 .bookId(bookId)
@@ -181,8 +161,8 @@ class ReadingProgressServiceTest {
         // when
         when(entityFinder.findUser(userId)).thenReturn(user);
         when(entityFinder.findEbook(bookId)).thenReturn(ebook);
-        when(ebookPurchaseRepository.findByUserAndEbook(user, ebook)).thenReturn(Optional.of(ebookPurchase));
-        when(readingProgressMapper.toResponse(ebookPurchase)).thenReturn(expectedResponse);
+        when(ebookShelfRepository.findByUserAndEbook(user, ebook)).thenReturn(Optional.of(ebookShelfItem));
+        when(readingProgressMapper.toResponse(ebookShelfItem)).thenReturn(expectedResponse);
 
         ReadingProgressResponse response = readingProgressService.getMyProgress(userToken, bookId);
 
@@ -202,16 +182,10 @@ class ReadingProgressServiceTest {
         Long bookId = 1L;
         Pageable pageable = PageRequest.of(0, 10);
 
-        PublisherProfile publisher = PublisherProfile.builder()
-                .id(1L)
-                .publisherName("Test Publisher")
-                .build();
-
         Ebook ebook = Ebook.builder()
                 .id(bookId)
                 .title("Test Book")
                 .author("Test Author")
-                .publisher(publisher)
                 .build();
 
         Activity activity = Activity.builder()
@@ -239,17 +213,17 @@ class ReadingProgressServiceTest {
                 .user(user2)
                 .build();
 
-        EbookPurchase purchase1 = EbookPurchase.builder()
+        EbookShelfItem shelfItem1 = EbookShelfItem.builder()
                 .user(user1)
                 .ebook(ebook)
                 .build();
-        purchase1.saveProgress("cfi1", 30L);
+        shelfItem1.saveProgress("cfi1", 30L);
 
-        EbookPurchase purchase2 = EbookPurchase.builder()
+        EbookShelfItem shelfItem2 = EbookShelfItem.builder()
                 .user(user2)
                 .ebook(ebook)
                 .build();
-        purchase2.saveProgress("cfi2", 60L);
+        shelfItem2.saveProgress("cfi2", 60L);
 
         ReadingProgressResponse response1 = ReadingProgressResponse.builder()
                 .bookId(bookId)
@@ -271,10 +245,10 @@ class ReadingProgressServiceTest {
         when(entityFinder.findActivity(activityId)).thenReturn(activity);
         when(activityMemberRepository.findByActivity(activity, pageable))
                 .thenReturn(new PageImpl<>(List.of(member1, member2)));
-        when(ebookPurchaseRepository.findByUserIdInAndEbook(List.of(user1.getId(), user2.getId()), ebook))
-                .thenReturn(List.of(purchase1, purchase2));
-        when(readingProgressMapper.toResponse(purchase1)).thenReturn(response1);
-        when(readingProgressMapper.toResponse(purchase2)).thenReturn(response2);
+        when(ebookShelfRepository.findByUserIdInAndEbook(List.of(user1.getId(), user2.getId()), ebook))
+                .thenReturn(List.of(shelfItem1, shelfItem2));
+        when(readingProgressMapper.toResponse(shelfItem1)).thenReturn(response1);
+        when(readingProgressMapper.toResponse(shelfItem2)).thenReturn(response2);
 
         PageResponse<ReadingProgressResponse> response = readingProgressService.getProgressFromActivity(activityId, pageable);
 

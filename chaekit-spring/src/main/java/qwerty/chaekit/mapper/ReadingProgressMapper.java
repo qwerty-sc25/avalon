@@ -2,8 +2,8 @@ package qwerty.chaekit.mapper;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import qwerty.chaekit.domain.ebook.purchase.EbookPurchase;
-import qwerty.chaekit.dto.ebook.purchase.ReadingProgressResponse;
+import qwerty.chaekit.domain.ebook.shelf.EbookShelfItem;
+import qwerty.chaekit.dto.ebook.shelf.ReadingProgressResponse;
 import qwerty.chaekit.service.util.FileService;
 
 @Component
@@ -15,14 +15,14 @@ public class ReadingProgressMapper {
         return fileService.convertToPublicImageURL(imageKey);
     }
 
-    public ReadingProgressResponse toResponse(EbookPurchase ebookPurchase) {
+    public ReadingProgressResponse toResponse(EbookShelfItem ebookShelfItem) {
         return ReadingProgressResponse.builder()
-                .bookId(ebookPurchase.getEbook().getId())
-                .userId(ebookPurchase.getUser().getId())
-                .userNickname(ebookPurchase.getUser().getNickname())
-                .userProfileImageURL(convertToPublicImageURL(ebookPurchase.getUser().getProfileImageKey()))
-                .cfi(ebookPurchase.getCfi())
-                .percentage(ebookPurchase.getPercentage())
+                .bookId(ebookShelfItem.getEbook().getId())
+                .userId(ebookShelfItem.getUser().getId())
+                .userNickname(ebookShelfItem.getUser().getNickname())
+                .userProfileImageURL(convertToPublicImageURL(ebookShelfItem.getUser().getProfileImageKey()))
+                .cfi(ebookShelfItem.getCfi())
+                .percentage(ebookShelfItem.getPercentage())
                 .build();
     }
 }

@@ -10,9 +10,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 import qwerty.chaekit.domain.ebook.Ebook;
+import qwerty.chaekit.domain.ebook.shelf.EbookShelfItem;
 import qwerty.chaekit.domain.highlight.Highlight;
 import qwerty.chaekit.domain.highlight.repository.HighlightRepository;
-import qwerty.chaekit.domain.member.publisher.PublisherProfile;
 import qwerty.chaekit.domain.member.user.UserProfile;
 import qwerty.chaekit.dto.highlight.HighlightFetchResponse;
 import qwerty.chaekit.dto.highlight.HighlightPostRequest;
@@ -44,15 +44,14 @@ class HighlightServiceTest {
     private UserProfile dummyUser;
     private Ebook dummyEbook;
     private UserToken dummyUserToken;
+    private EbookShelfItem dummyEbookShelfItem;
 
     @BeforeEach
     void setUp() {
         dummyUser = testFixtureFactory.createUser("user_email", "user_nickname");
-        PublisherProfile dummyPublisherProfile = testFixtureFactory.createPublisher("publisher_email", "publisher_name");
-        dummyEbook = testFixtureFactory.createEbook("dummy_ebook", dummyPublisherProfile, "book_author", "book_description", "book_file_key");
         dummyUserToken = testFixtureFactory.createUserToken(dummyUser.getMember(), dummyUser);
-        testFixtureFactory.createEbookPurchase(dummyUser, dummyEbook);
-
+        dummyEbook = testFixtureFactory.createEbook("dummy_ebook", "Dummy Author", "description", "dummy_file_key");
+        dummyEbookShelfItem = testFixtureFactory.createEbookShelfItem(dummyUser, dummyEbook);
     }
 
     @Test

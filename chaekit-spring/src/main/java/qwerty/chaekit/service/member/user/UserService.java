@@ -6,7 +6,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import qwerty.chaekit.domain.ebook.credit.wallet.CreditWalletRepository;
 import qwerty.chaekit.domain.group.activity.Activity;
 import qwerty.chaekit.domain.group.activity.repository.ActivityRepository;
 import qwerty.chaekit.domain.member.user.UserProfile;
@@ -27,7 +26,6 @@ public class UserService {
     private final UserProfileRepository userRepository;
     private final FileService fileService;
     private final ActivityRepository activityRepository;
-    private final CreditWalletRepository creditWalletRepository;
 
     @Transactional(readOnly = true)
     public UserInfoResponse getUserProfile(UserToken userToken) {
@@ -44,8 +42,7 @@ public class UserService {
                 imageURL, 
                 activity,
                 activity == null ? null : fileService.convertToPublicImageURL(activity.getGroup().getGroupImageKey()),
-                activity == null ? null : fileService.convertToPublicImageURL(activity.getBook().getCoverImageKey()),
-                creditWalletRepository.existsByUserAndPaymentTransactionsEmpty(user)
+                activity == null ? null : fileService.convertToPublicImageURL(activity.getBook().getCoverImageKey())
         );
     }
     
@@ -66,6 +63,6 @@ public class UserService {
         }
         
         String imageURL = fileService.convertToPublicImageURL(user.getProfileImageKey());
-        return UserInfoResponse.of(user, imageURL, null, null, null, null);
+        return UserInfoResponse.of(user, imageURL, null, null, null);
     }
 }

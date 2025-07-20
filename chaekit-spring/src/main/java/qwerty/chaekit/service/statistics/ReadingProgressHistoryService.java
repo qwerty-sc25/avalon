@@ -6,8 +6,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import qwerty.chaekit.domain.ebook.history.ReadingProgressHistory;
 import qwerty.chaekit.domain.ebook.history.ReadingProgressHistoryRepository;
-import qwerty.chaekit.domain.ebook.purchase.EbookPurchase;
-import qwerty.chaekit.domain.ebook.purchase.repository.EbookPurchaseRepository;
+import qwerty.chaekit.domain.ebook.shelf.EbookShelfItem;
+import qwerty.chaekit.domain.ebook.shelf.repository.EbookShelfRepository;
 import qwerty.chaekit.domain.group.activity.Activity;
 import qwerty.chaekit.domain.group.activity.activitymember.ActivityMember;
 import qwerty.chaekit.domain.group.activity.activitymember.ActivityMemberRepository;
@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 public class ReadingProgressHistoryService {
     private final ActivityRepository activityRepository;
     private final ActivityMemberRepository activityMemberRepository;
-    private final EbookPurchaseRepository ebookPurchaseRepository;
+    private final EbookShelfRepository ebookShelfRepository;
     private final ReadingProgressHistoryRepository historyRepository;
     private final ActivityPolicy activityPolicy;
     private final EntityFinder entityFinder;
@@ -44,9 +44,9 @@ public class ReadingProgressHistoryService {
         for (Activity activity : activities) {
             List<ActivityMember> members = activityMemberRepository.findByActivity(activity);
             for (ActivityMember member : members) {
-                Optional<EbookPurchase> purchaseOpt = ebookPurchaseRepository
+                Optional<EbookShelfItem> shelfItemOptional = ebookShelfRepository
                         .findByUserAndEbook(member.getUser(), activity.getBook());
-                long percentage = purchaseOpt.map(EbookPurchase::getPercentage).orElse(0L);
+                long percentage = shelfItemOptional.map(EbookShelfItem::getPercentage).orElse(0L);
                 historyRepository.save(ReadingProgressHistory.builder()
                         .activity(activity)
                         .user(member.getUser())
@@ -83,11 +83,11 @@ public class ReadingProgressHistoryService {
         List<ActivityMember> activityMembers = activityMemberRepository.findByActivity(activity);
         List<Long> userIdList = activityMembers.stream()
                 .map(activityMember -> activityMember.getUser().getId()).toList();
-        Map<Long, Long> currentPercentageByUser = ebookPurchaseRepository.findByUserIdInAndEbook(userIdList, activity.getBook())
+        Map<Long, Long> currentPercentageByUser = ebookShelfRepository.findByUserIdInAndEbook(userIdList, activity.getBook())
                 .stream().collect(
                         Collectors.toMap(
                                 ep -> ep.getUser().getId(),
-                                EbookPurchase::getPercentage
+                                EbookShelfItem::getPercentage
                         )
                 );
 

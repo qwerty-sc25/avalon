@@ -1,11 +1,12 @@
-## docker-compose 실행
+## docker-compose로 모두 실행
 
 1. 아래 명령어로 포트 사용 중인지 확인
    ```bash
+   # 아래 명령어로 포트 사용 중인지 확인
    lsof -i :3306
    lsof -i :8080
    ```
-2. 루트 디렉토리에 .env 파일을 생성
+2. 루트 디렉토리에 .env 파일 세팅(아래 🔐 개발용 .env 설정 참고)
 3. Docker 컨테이너 실행
    ```bash
    # 백그라운드 실행
@@ -15,7 +16,17 @@
    # 정지
    docker compose down
    # 기존 db와 충돌되는 경우
-   docker-compose down -v
+   docker compose down -v
+   ```
+   
+## docker-compose.local.yml로 DB 및 Redis 실행
+   ```bash
+   # 로컬 개발 환경에서 DB와 Redis를 실행하기 위한 docker-compose 파일을 사용합니다.
+   docker compose -f docker-compose.local.yml up -d --build
+   # DB와 Redis 컨테이너 종료
+   docker compose -f docker-compose.local.yml down
+   # 볼륨 삭제하면서 컨테이너 종료 (기존 데이터 삭제)
+   docker compose -f docker-compose.local.yml down -v
    ```
 
 ## 🐬 MySQL 설정

@@ -5,16 +5,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import qwerty.chaekit.domain.ebook.Ebook;
 import qwerty.chaekit.domain.ebook.repository.EbookRepository;
-import qwerty.chaekit.domain.member.publisher.PublisherProfile;
 import qwerty.chaekit.global.init.dummy.DummyEbook;
-import qwerty.chaekit.service.member.admin.AdminService;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class DummyEbookFactory {
     private final EbookRepository ebookRepository;
-    private final AdminService adminService;
     
     public void saveDummyEbooks() {
         saveDummyEbook(DummyEbook.ALICE);
@@ -38,12 +35,10 @@ public class DummyEbookFactory {
         return Ebook.builder()
                 .title(ebookData.getTitle())
                 .author(ebookData.getAuthor())
-                .publisher(PublisherProfile.builder().id(2L).build())
                 .description(ebookData.getDescription())
                 .fileKey(ebookData.getFileKey())
                 .coverImageKey(ebookData.getCoverImageKey())
                 .size(ebookData.getSize())
-                .price(ebookData.getPrice())
                 .build();
     }
     
