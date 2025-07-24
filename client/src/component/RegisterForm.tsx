@@ -20,7 +20,7 @@ export default function RegisterForm({
   registerType,
   handleBack,
 }: {
-  registerType?: "member" | "publisher";
+  registerType?: "member";
   handleBack: () => void;
 }) {
   const theme = useTheme();
@@ -215,13 +215,9 @@ export default function RegisterForm({
                   {!profileImage && <AddIcon />}
                 </Avatar>
               </div>
-              <InputLabel>
-                {registerType == "member" ? "Nickname" : "Publisher Name"}
-              </InputLabel>
+              <InputLabel>{"Nickname"}</InputLabel>
               <OutlinedInput
-                placeholder={
-                  registerType == "member" ? "Nickname" : "Publisher Name"
-                }
+                placeholder={"member"}
                 fullWidth
                 value={nickname}
                 onChange={(e) => setNickname(e.target.value)}

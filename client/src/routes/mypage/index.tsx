@@ -131,12 +131,7 @@ function ProfileSection({ userId }: { userId: number }) {
                 {userProfile?.email}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                역할:{" "}
-                {userProfile?.role === "ROLE_ADMIN"
-                  ? "관리자"
-                  : userProfile?.role === "ROLE_PUBLISHER"
-                    ? "출판사"
-                    : "유저"}
+                역할: {userProfile?.role === "ROLE_ADMIN" ? "관리자" : "유저"}
               </Typography>
             </Box>
 

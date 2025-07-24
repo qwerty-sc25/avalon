@@ -32,37 +32,6 @@ export interface EbookStats {
   createdAt: string;
 }
 
-/**
- * 출판사 통계 데이터
- */
-export interface PublisherStatsData {
-  totalSalesCount: number;
-  increasedSalesCount: number;
-  totalRevenue: number;
-  increasedRevenue: number;
-  totalActivityCount: number;
-  increasedActivityCount: number;
-  totalViewCount: number;
-  monthlyRevenueList: MonthlyRevenue[];
-  increasedSalesCountsPerEbook: IncreasedSalesData[];
-  statsPerEbookList: EbookStats[];
-}
-
-/**
- * API 응답 래퍼
- */
-export interface PublisherStatsResponse {
-  isSuccessful: boolean;
-  data: PublisherStatsData;
-}
-
-/**
- * AnalyticsTab 컴포넌트 Props
- */
-export interface AnalyticsTabProps {
-  publisherStats: PublisherStatsData | null;
-}
-
 // 차트 데이터를 위한 유틸리티 타입들
 export interface PieChartData {
   name: string;

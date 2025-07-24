@@ -162,10 +162,8 @@ function RouteComponent() {
 
   // 새로고침 핸들러
   const handleRefresh = useCallback(() => {
-    queryClient.invalidateQueries({ queryKey: ["adminPublishers"] });
     queryClient.invalidateQueries({ queryKey: ["adminUsers"] });
     queryClient.invalidateQueries({ queryKey: ["adminBookRequests"] });
-    queryClient.invalidateQueries({ queryKey: ["adminPublisherStats"] });
   }, [queryClient]);
 
   // 요약 통계 카드

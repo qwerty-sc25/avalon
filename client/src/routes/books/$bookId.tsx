@@ -55,7 +55,7 @@ function RouteComponent() {
     enabled: book?.isPurchased,
   });
 
-  const handlePurchase = async () => {
+  const handleRegisterBook = async () => {
     setProcessing(true);
     const response =
       await API_CLIENT.ebookShelfController.registerEbook(bookId);
@@ -132,7 +132,7 @@ function RouteComponent() {
                 {!isOnBookshelf && (
                   <Button
                     variant="contained"
-                    onClick={handlePurchase}
+                    onClick={handleRegisterBook}
                     disabled={processing || isOnBookshelf}
                   >
                     {processing ? "담는 중..." : "담기"}
