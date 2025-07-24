@@ -170,7 +170,7 @@ export function CurrentActivityCard(props: {
       switch (response.errorCode) {
         case "EBOOK_NOT_PURCHASED": {
           const shouldMoveToPurchasePage = confirm(
-            "활동에 참여하기 위해서는 책을 구매해야 합니다. 구매 페이지로 이동하시겠습니까?",
+            "활동에 참여하기 위해서는 책을 서재에 담아야 합니다. 서재로 이동하시겠습니까?",
           );
           if (shouldMoveToPurchasePage) {
             navigate({

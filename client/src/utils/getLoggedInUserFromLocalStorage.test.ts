@@ -56,30 +56,6 @@ describe("getLoggedInUserFromLocalStorage", () => {
     }
   });
 
-  it("유효한 출판사 사용자 정보를 올바르게 파싱해야 한다", () => {
-    const publisherData: AuthState.LoggedInUser = {
-      memberId: 2,
-      email: "publisher@test.com",
-      role: Role.ROLE_PUBLISHER,
-      profileImageURL: "publisher.jpg",
-      refreshToken: "pub-refresh-token",
-      accessToken: "pub-access-token",
-      publisherId: 456,
-      publisherName: "Test Publisher",
-    };
-
-    localStorageMock.getItem.mockReturnValue(JSON.stringify(publisherData));
-
-    const result = getLoggedInUserFromLocalStorage();
-
-    expect(result).toEqual(publisherData);
-    expect(result?.role).toBe(Role.ROLE_PUBLISHER);
-    if (result?.role === Role.ROLE_PUBLISHER) {
-      expect(result.publisherId).toBe(456);
-      expect(result.publisherName).toBe("Test Publisher");
-    }
-  });
-
   it("유효한 관리자 정보를 올바르게 파싱해야 한다", () => {
     const adminData: AuthState.LoggedInUser = {
       memberId: 3,

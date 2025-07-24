@@ -18,11 +18,6 @@ export namespace AuthState {
         firstPaymentBenefit: boolean;
       }
     | {
-        publisherId: number;
-        publisherName: string;
-        role: Role.ROLE_PUBLISHER;
-      }
-    | {
         role: Role.ROLE_ADMIN;
         firstPaymentBenefit: boolean;
       }

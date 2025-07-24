@@ -7,12 +7,10 @@ import { Toolbar } from "@mui/material";
 import { NavigationItem } from "../component/SideNavigatorBar";
 import {
   AdminPanelSettings,
-  Badge,
   Book,
   BookOnline,
   Group,
   Home,
-  ImportContacts,
 } from "@mui/icons-material";
 import { useAtomValue } from "jotai";
 import State from "../states";
@@ -26,7 +24,6 @@ export const Route = createRootRoute({
 
 const navigationShellHidePathIds: FileRouteTypes["id"][] = [
   "/reader/$bookId",
-  "/credits/payment/success",
   "/oauth2/success",
   "/oauth2/failure",
 ];
@@ -40,11 +37,6 @@ const defaultNavigationItems: NavigationItem[][] = [
 const adminNavigationItems: NavigationItem[] = [
   { to: "/mypage/admin", label: "관리자", icon: <AdminPanelSettings /> },
   { to: "/admin/books", label: "도서 관리", icon: <BookOnline /> },
-  { to: "/admin/publisher", label: "출판사 관리", icon: <Badge /> },
-];
-
-const publisherNavigationItems: NavigationItem[] = [
-  { to: "/mypage/publisher", label: "출판사", icon: <ImportContacts /> },
 ];
 
 autoLogin();
@@ -59,7 +51,6 @@ function RouteComponent() {
   );
 
   const isAdmin = user && user.role === Role.ROLE_ADMIN;
-  const isPublisher = user && user.role === Role.ROLE_PUBLISHER;
 
   return (
     <>
@@ -69,7 +60,6 @@ function RouteComponent() {
             sideNavigationBarItemsWithGroups={[
               ...defaultNavigationItems,
               ...(isAdmin ? [adminNavigationItems] : []),
-              ...(isPublisher ? [publisherNavigationItems] : []),
             ]}
           />
           <Toolbar />

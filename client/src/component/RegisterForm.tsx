@@ -77,14 +77,6 @@ export default function RegisterForm({
         verificationCode,
         ...(profileImage ? { profileImage } : {}),
       });
-    } else if (registerType === "publisher") {
-      response = await API_CLIENT.publisherController.publisherJoin({
-        publisherName: nickname,
-        email,
-        password,
-        verificationCode,
-        ...(profileImage ? { profileImage } : {}),
-      });
     } else {
       enqueueSnackbar("잘못된 회원가입 유형입니다.", { variant: "error" });
       return;

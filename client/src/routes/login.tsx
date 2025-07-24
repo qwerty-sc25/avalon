@@ -7,7 +7,6 @@ import {
   Button,
   useTheme,
   CardHeader,
-  Typography,
 } from "@mui/material";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useSnackbar } from "notistack";
@@ -15,7 +14,6 @@ import useLogin from "../api/login/useLogin";
 import { useCallback, useState } from "react";
 import API_CLIENT from "../api/api";
 import { AuthState } from "../states/auth";
-import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { Role } from "../types/role";
 import { Google } from "@mui/icons-material";
 import { ENV } from "../env";
@@ -52,11 +50,6 @@ function RouteComponent() {
         to: "/mypage/admin",
         replace: true,
       });
-    } else if (loggedInUser.role === Role.ROLE_PUBLISHER) {
-      navigate({
-        to: "/mypage/publisher",
-        replace: true,
-      });
     } else if (loggedInUser.role === Role.ROLE_USER) {
       navigate({
         to: "/",
@@ -76,7 +69,7 @@ function RouteComponent() {
     const popup = window.open(
       `${ENV.CHAEKIT_API_ENDPOINT}/oauth2/authorization/google`,
       "oauth2_popup",
-      `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,resizable=yes`
+      `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,resizable=yes`,
     );
 
     if (!popup) {
@@ -101,8 +94,6 @@ function RouteComponent() {
 
         if (loggedInUser.role === Role.ROLE_ADMIN) {
           navigate({ to: "/mypage/admin", replace: true });
-        } else if (loggedInUser.role === Role.ROLE_PUBLISHER) {
-          navigate({ to: "/mypage/publisher", replace: true });
         } else {
           navigate({ to: "/mypage", replace: true });
         }
@@ -185,32 +176,6 @@ function RouteComponent() {
           >
             회원가입
           </Button>
-          <Typography
-            variant="body2"
-            color="text.secondary"
-            gutterBottom
-            sx={{
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "right",
-            }}
-          >
-            <Typography
-              component="span"
-              onClick={() => {
-                navigate({
-                  to: "/register/publisher",
-                });
-              }}
-              sx={{
-                cursor: "pointer",
-                textDecoration: "underline",
-              }}
-            >
-              출판사, 비즈니스 회원가입
-            </Typography>
-            <ArrowForwardIcon />
-          </Typography>
         </CardContent>
       </Card>
     </Container>

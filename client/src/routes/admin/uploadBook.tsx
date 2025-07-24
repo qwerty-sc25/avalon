@@ -14,7 +14,6 @@ import {
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useSnackbar } from "notistack";
-import API_CLIENT from "../../api/api";
 import { Add } from "@mui/icons-material";
 
 const MAX_DESCRIPTION_LENGTH = 10000;
@@ -45,21 +44,8 @@ function RouteComponent() {
         });
         return;
       }
-      const response = await API_CLIENT.ebookController.uploadFile({
-        title,
-        file,
-        description,
-        author,
-        coverImageFile: coverImageFile ?? undefined,
-        price,
-      });
-      if (response.isSuccessful) {
-        setTitle("");
-        setAuthor("");
-        setDescription("");
-        setCoverImageFile(null);
-        setPrice(0);
-      }
+      // Upload book
+      alert("Upload book not implemented yet.");
     };
     inputElement.click();
   };

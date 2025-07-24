@@ -14,7 +14,6 @@ import { useState } from "react";
 import API_CLIENT from "../../api/api";
 import { BookMetadata } from "../../types/book";
 import LinkButton from "../../component/LinkButton";
-import CreditPurchaseModal from "../../component/CreditPurchaseModal";
 
 export const Route = createFileRoute("/books/$bookId")({
   component: RouteComponent,
@@ -32,20 +31,15 @@ export const Route = createFileRoute("/books/$bookId")({
 function RouteComponent() {
   const { bookId } = Route.useParams();
   const { enqueueSnackbar } = useSnackbar();
-  const [isPurchased, setIsPurchased] = useState(false);
-  const [purchasing, setPurchasing] = useState(false);
-  const [openCreditPurchaseModal, setOpenCreditPurchaseModal] = useState(false);
+  const [isOnBookshelf, setIsOnBookshelf] = useState(false);
+  const [processing, setProcessing] = useState(false);
 
-  const {
-    data: book,
-    isLoading,
-    refetch: refetchBook,
-  } = useQuery({
+  const { data: book, isLoading } = useQuery({
     queryKey: ["books", bookId],
     queryFn: async () => {
       const response = await API_CLIENT.ebookController.getBook(bookId);
       if (!response.isSuccessful) throw new Error(response.errorMessage);
-      setIsPurchased(response.data.isPurchased!);
+      setIsOnBookshelf(response.data.isOnBookshelf!);
       return response.data as BookMetadata;
     },
   });
@@ -62,21 +56,12 @@ function RouteComponent() {
   });
 
   const handlePurchase = async () => {
-    setPurchasing(true);
+    setProcessing(true);
     const response =
-      await API_CLIENT.ebookPurchaseController.purchaseEbook(bookId);
-    setPurchasing(false);
+      await API_CLIENT.ebookShelfController.registerEbook(bookId);
+    setProcessing(false);
     if (!response.isSuccessful) {
       switch (response.errorCode) {
-        case "CREDIT_NOT_ENOUGH": {
-          const shouldOpenCreditPurchaseModal = confirm(
-            "잔액이 부족합니다. 충전하시겠습니까?"
-          );
-          if (shouldOpenCreditPurchaseModal) {
-            setOpenCreditPurchaseModal(true);
-          }
-          break;
-        }
         default: {
           enqueueSnackbar(response.errorMessage, { variant: "error" });
           break;
@@ -84,8 +69,8 @@ function RouteComponent() {
       }
       return;
     }
-    enqueueSnackbar("구매가 완료되었습니다!", { variant: "success" });
-    setIsPurchased(true);
+    enqueueSnackbar("저장이 완료되었습니다!", { variant: "success" });
+    setIsOnBookshelf(true);
   };
 
   if (isLoading) {
@@ -144,16 +129,16 @@ function RouteComponent() {
               </Stack>
 
               <Stack spacing={2} direction="row" justifyContent="flex-end">
-                {!isPurchased && (
+                {!isOnBookshelf && (
                   <Button
                     variant="contained"
                     onClick={handlePurchase}
-                    disabled={purchasing || isPurchased}
+                    disabled={processing || isOnBookshelf}
                   >
-                    {purchasing ? "구매 중..." : "구매하기"}
+                    {processing ? "담는 중..." : "담기"}
                   </Button>
                 )}
-                {isPurchased && (
+                {isOnBookshelf && (
                   <LinkButton
                     to="/reader/$bookId"
                     params={{
@@ -175,14 +160,6 @@ function RouteComponent() {
           </Stack>
         )}
       </Paper>
-      <CreditPurchaseModal
-        open={openCreditPurchaseModal}
-        onClose={() => setOpenCreditPurchaseModal(false)}
-        onPurchased={() => {
-          refetchBook();
-          setOpenCreditPurchaseModal(false);
-        }}
-      />
     </Container>
   );
 }

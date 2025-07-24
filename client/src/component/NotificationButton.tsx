@@ -32,19 +32,20 @@ export default function NotificationButton() {
   const { data: notifications, refetch: refetchNotifications } = useQuery({
     queryKey: ["notifications"],
     queryFn: async () => {
-      const response =
-        await API_CLIENT.notificationController.getNotifications1({
+      const response = await API_CLIENT.notificationController.getNotifications(
+        {
           pageable: {
             page: 0,
             size: 5,
           },
-        });
+        },
+      );
       if (!response.isSuccessful) {
         throw new Error(response.errorMessage);
       }
       const notifications = response.data.content! as Notification[];
       return notifications.filter(
-        (notification) => notification.isRead === false
+        (notification) => notification.isRead === false,
       );
     },
     placeholderData: keepPreviousData,
@@ -117,7 +118,7 @@ function NotificationItem({
 }) {
   const onMarkAsRead = () => {
     API_CLIENT.notificationController
-      .markAsRead1(notification.id)
+      .markAsRead(notification.id)
       .then((response) => {
         if (!response.isSuccessful) {
           throw new Error(response.errorMessage);
@@ -207,21 +208,6 @@ function NotificationItemContent({
       );
     }
     case "GROUP_JOIN_REJECTED": {
-      return null;
-    }
-    case "PUBLISHER_JOIN_REQUEST": {
-      return (
-        <ButtonContainer>
-          <LinkButton size="small" to={"/admin/publisher"}>
-            가입대기목록으로 이동
-          </LinkButton>
-        </ButtonContainer>
-      );
-    }
-    case "PUBLISHER_APPROVED": {
-      return null;
-    }
-    case "PUBLISHER_REJECTED": {
       return null;
     }
     case "DISCUSSION_COMMENT": {

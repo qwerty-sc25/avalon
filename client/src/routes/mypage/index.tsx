@@ -183,10 +183,10 @@ function StatsSection({ userId }: { userId: number }) {
     },
   });
 
-  const { data: purchasedBookCount } = useQuery({
-    queryKey: ["purchasedBookCount", userId],
+  const { data: bookOnShelfCount } = useQuery({
+    queryKey: ["bookOnShelfCount", userId],
     queryFn: async () => {
-      const response = await API_CLIENT.ebookPurchaseController.getMyBooks();
+      const response = await API_CLIENT.ebookShelfController.getMyBooks();
       if (!response.isSuccessful) {
         throw new Error(response.error);
       }
@@ -222,8 +222,8 @@ function StatsSection({ userId }: { userId: number }) {
     },
     {
       icon: <ShoppingCart />,
-      title: "구매한 책",
-      count: purchasedBookCount,
+      title: "저장한 책",
+      count: bookOnShelfCount,
       color: "info",
     },
     {
@@ -343,9 +343,9 @@ function BooksSection() {
   return (
     <Stack spacing={3}>
       <BookList
-        kind={BookListKind.PURCHASED_BOOK}
+        kind={BookListKind.ON_BOOK_SHELF}
         size="small"
-        title="구매한 도서"
+        title="담은 도서"
         action={
           <IconButton
             onClick={() =>
