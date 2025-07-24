@@ -49,17 +49,6 @@ export interface LoginResponse {
    */
   nickname?: string;
   /**
-   * 출판사 ID
-   * @format int64
-   * @example 1
-   */
-  publisherId?: number;
-  /**
-   * 출판사 이름
-   * @example "문학과지성사"
-   */
-  publisherName?: string;
-  /**
    * 프로필 이미지 URL
    * @example "https://cdn.example.com/images/profile1.png"
    */
@@ -68,7 +57,7 @@ export interface LoginResponse {
    * 회원 역할
    * @example "ROLE_USER"
    */
-  role: "ROLE_USER" | "ROLE_PUBLISHER" | "ROLE_ADMIN";
+  role: "ROLE_USER" | "ROLE_ADMIN";
   /**
    * Refresh Token (재발급용)
    * @example "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
@@ -79,11 +68,6 @@ export interface LoginResponse {
    * @example "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
    */
   accessToken: string;
-  /**
-   * 프로모션 대상 여부
-   * @example true
-   */
-  firstPaymentBenefit: boolean;
 }
 
 export interface RefreshTokenRequest {
@@ -111,15 +95,6 @@ export interface ReadingProgressRequest {
 export interface ApiSuccessResponseVoid {
   isSuccessful?: boolean;
   data?: object;
-}
-
-export interface PublisherJoinRequest {
-  publisherName: string;
-  email: string;
-  password: string;
-  /** @format binary */
-  profileImage?: File;
-  verificationCode: string;
 }
 
 export interface LoginRequest {
@@ -424,100 +399,19 @@ export interface DiscussionCommentFetchResponse {
 }
 
 /** API 에러 응답을 감싸는 클래스 */
-export interface ApiSuccessResponseCreditPaymentApproveResponse {
+export interface ApiSuccessResponseEbookRegisterResponse {
   isSuccessful?: boolean;
-  data?: CreditPaymentApproveResponse;
+  data?: EbookRegisterResponse;
 }
 
-export interface CreditPaymentApproveResponse {
-  orderId?: string;
-  /** @format int32 */
-  creditProductId?: number;
-  creditProductName?: string;
-  paymentMethod?: string;
-  /** @format int32 */
-  paymentAmount?: number;
-  /** @format date-time */
-  approvedAt?: string;
-}
-
-export interface CreditPaymentReadyRequest {
-  /** @format int64 */
-  creditProductId?: number;
-}
-
-/** 전자책 업로드 요청 데이터 */
-export interface EbookPostRequest {
-  /**
-   * 책 제목
-   * @example "이상한 나라의 앨리스"
-   */
-  title: string;
-  /**
-   * 책 저자
-   * @example "루이스 캐럴"
-   */
-  author: string;
-  /**
-   * 책 설명
-   * @example "《이상한 나라의 앨리스》는 영국의 수학자이자 작가인 찰스 루트위지 도지슨이 루이스 캐럴이라는 필명으로 1865년에 발표한 소설이다."
-   */
-  description?: string;
-  /** @format binary */
-  file: File;
-  /**
-   * 책 가격
-   * @format int32
-   * @example 10000
-   */
-  price: number;
-  /** @format binary */
-  coverImageFile?: File;
-}
-
-/** API 에러 응답을 감싸는 클래스 */
-export interface ApiSuccessResponseEbookPostResponse {
-  isSuccessful?: boolean;
-  data?: EbookPostResponse;
-}
-
-export interface EbookPostResponse {
-  /** @format int64 */
-  requestId?: number;
-  /** @format int64 */
-  bookId?: number;
-  title?: string;
-  author?: string;
-  description?: string;
-  coverImageURL?: string;
-}
-
-/** API 에러 응답을 감싸는 클래스 */
-export interface ApiSuccessResponseEbookPurchaseResponse {
-  isSuccessful?: boolean;
-  data?: EbookPurchaseResponse;
-}
-
-export interface EbookPurchaseResponse {
+export interface EbookRegisterResponse {
   /** @format int64 */
   userId?: number;
-  /** @format int64 */
-  transactionId?: number;
-  /** @format int32 */
-  creditAmount?: number;
   /** @format int64 */
   bookId?: number;
   title?: string;
   author?: string;
   presignedDownloadURL?: string;
-}
-
-export interface EbookRequestRejectRequest {
-  reason?: string;
-}
-
-export interface RejectPublisherRequest {
-  reason: string;
 }
 
 export interface DiscussionPostRequest {
@@ -591,7 +485,6 @@ export interface UserInfoResponse {
   recentActivityBookTitle?: string;
   recentActivityBookAuthor?: string;
   recentActivityBookCoverImageURL?: string;
-  firstPaymentBenefit?: boolean;
   /** @format date-time */
   createdAt?: string;
 }
@@ -840,110 +733,6 @@ export interface ReadingProgressHistoryResponse {
 }
 
 /** API 에러 응답을 감싸는 클래스 */
-export interface ApiSuccessResponsePublisherStatsResponse {
-  isSuccessful?: boolean;
-  data?: PublisherStatsResponse;
-}
-
-export interface MonthlyRevenue {
-  month?: string;
-  /** @format int64 */
-  monthlyRevenue?: number;
-}
-
-export interface PublisherStatsResponse {
-  /** @format int64 */
-  totalSalesCount?: number;
-  /** @format int64 */
-  increasedSalesCount?: number;
-  /** @format int64 */
-  totalRevenue?: number;
-  /** @format int64 */
-  increasedRevenue?: number;
-  /** @format int64 */
-  totalActivityCount?: number;
-  /** @format int64 */
-  increasedActivityCount?: number;
-  /** @format int64 */
-  totalViewCount?: number;
-  monthlyRevenueList?: MonthlyRevenue[];
-  increasedSalesCountsPerEbook?: SalesCountPerEbook[];
-  statsPerEbookList?: StatsPerEbook[];
-}
-
-export interface SalesCountPerEbook {
-  /** @format int64 */
-  bookId?: number;
-  bookName?: string;
-  /** @format int64 */
-  totalSalesCount?: number;
-}
-
-export interface StatsPerEbook {
-  /** @format int64 */
-  bookId?: number;
-  title?: string;
-  author?: string;
-  bookCoverImageURL?: string;
-  /** @format int64 */
-  totalSalesCount?: number;
-  /** @format int64 */
-  totalRevenue?: number;
-  /** @format int64 */
-  viewCount?: number;
-  /** @format int64 */
-  activityCount?: number;
-  /** @format date */
-  createdAt?: string;
-}
-
-/** API 에러 응답을 감싸는 클래스 */
-export interface ApiSuccessResponsePublisherInfoResponse {
-  isSuccessful?: boolean;
-  data?: PublisherInfoResponse;
-}
-
-export interface PublisherInfoResponse {
-  /** @format int64 */
-  publisherId?: number;
-  publisherName?: string;
-  profileImageURL?: string;
-  status?: string;
-  /** @format date-time */
-  createdAt?: string;
-}
-
-/** API 에러 응답을 감싸는 클래스 */
-export interface ApiSuccessResponsePageResponseEbookFetchResponse {
-  isSuccessful?: boolean;
-  data?: PageResponseEbookFetchResponse;
-}
-
-export interface EbookFetchResponse {
-  /** @format int64 */
-  id?: number;
-  title?: string;
-  bookCoverImageURL?: string;
-  author?: string;
-  description?: string;
-  /** @format int64 */
-  size?: number;
-  isPurchased?: boolean;
-  /** @format int32 */
-  price?: number;
-}
-
-export interface PageResponseEbookFetchResponse {
-  content?: EbookFetchResponse[];
-  /** @format int32 */
-  currentPage?: number;
-  /** @format int64 */
-  totalItems?: number;
-  /** @format int32 */
-  totalPages?: number;
-}
-
-/** API 에러 응답을 감싸는 클래스 */
 export interface ApiSuccessResponsePageResponseNotificationResponse {
   isSuccessful?: boolean;
   data?: PageResponseNotificationResponse;
@@ -957,9 +746,6 @@ export interface NotificationResponse {
     | "GROUP_JOIN_REQUEST"
     | "GROUP_JOIN_APPROVED"
     | "GROUP_JOIN_REJECTED"
-    | "PUBLISHER_JOIN_REQUEST"
-    | "PUBLISHER_APPROVED"
-    | "PUBLISHER_REJECTED"
     | "DISCUSSION_COMMENT"
     | "COMMENT_REPLY"
     | "HIGHLIGHT_COMMENT"
@@ -1165,56 +951,25 @@ export interface HighlightSummaryResponse {
 }
 
 /** API 에러 응답을 감싸는 클래스 */
-export interface ApiSuccessResponseListCreditProductInfoResponse {
+export interface ApiSuccessResponsePageResponseEbookFetchResponse {
   isSuccessful?: boolean;
-  data?: CreditProductInfoResponse[];
+  data?: PageResponseEbookFetchResponse;
 }
 
-export interface CreditProductInfoResponse {
-  /** @format int32 */
+export interface EbookFetchResponse {
+  /** @format int64 */
   id?: number;
-  /** @format int32 */
-  creditAmount?: number;
-  /** @format int32 */
-  price?: number;
-}
-
-/** API 에러 응답을 감싸는 클래스 */
-export interface ApiSuccessResponseCreditWalletResponse {
-  isSuccessful?: boolean;
-  data?: CreditWalletResponse;
-}
-
-export interface CreditWalletResponse {
-  /** @format int64 */
-  walletId?: number;
-  /** @format int64 */
-  balance?: number;
-}
-
-/** API 에러 응답을 감싸는 클래스 */
-export interface ApiSuccessResponsePageResponseCreditTransactionResponse {
-  isSuccessful?: boolean;
-  data?: PageResponseCreditTransactionResponse;
-}
-
-export interface CreditTransactionResponse {
-  orderId?: string;
-  /** @format int32 */
-  productId?: number;
-  productName?: string;
-  type?: "CHARGE" | "REFUND";
-  /** @format int32 */
-  creditAmount?: number;
-  /** @format int32 */
-  paymentAmount?: number;
+  title?: string;
+  bookCoverImageURL?: string;
+  author?: string;
   description?: string;
-  /** @format date-time */
-  approvedAt?: string;
+  /** @format int64 */
+  size?: number;
+  isOnBookshelf?: boolean;
 }
 
-export interface PageResponseCreditTransactionResponse {
-  content?: CreditTransactionResponse[];
+export interface PageResponseEbookFetchResponse {
+  content?: EbookFetchResponse[];
   /** @format int32 */
   currentPage?: number;
   /** @format int64 */
@@ -1240,43 +995,6 @@ export interface EbookDownloadResponse {
 }
 
 /** API 에러 응답을 감싸는 클래스 */
-export interface ApiSuccessResponsePageResponseEbookRequestFetchResponse {
-  isSuccessful?: boolean;
-  data?: PageResponseEbookRequestFetchResponse;
-}
-
-export interface EbookRequestFetchResponse {
-  /** @format int64 */
-  requestId?: number;
-  /** @format int64 */
-  bookId?: number;
-  title?: string;
-  author?: string;
-  description?: string;
-  /** @format int64 */
-  size?: number;
-  /** @format int32 */
-  price?: number;
-  coverImageURL?: string;
-  /** @format int64 */
-  publisherId?: number;
-  publisherName?: string;
-  publisherEmail?: string;
-  status?: "PENDING" | "APPROVED" | "REJECTED";
-  rejectReason?: string;
-}
-
-export interface PageResponseEbookRequestFetchResponse {
-  content?: EbookRequestFetchResponse[];
-  /** @format int32 */
-  currentPage?: number;
-  /** @format int64 */
-  totalItems?: number;
-  /** @format int32 */
-  totalPages?: number;
-}
-
-/** API 에러 응답을 감싸는 클래스 */
 export interface ApiSuccessResponsePageResponseUserInfoResponse {
   isSuccessful?: boolean;
   data?: PageResponseUserInfoResponse;
@@ -1284,22 +1002,6 @@ export interface ApiSuccessResponsePageResponseUserInfoResponse {
 
 export interface PageResponseUserInfoResponse {
   content?: UserInfoResponse[];
-  /** @format int32 */
-  currentPage?: number;
-  /** @format int64 */
-  totalItems?: number;
-  /** @format int32 */
-  totalPages?: number;
-}
-
-/** API 에러 응답을 감싸는 클래스 */
-export interface ApiSuccessResponsePageResponsePublisherInfoResponse {
-  isSuccessful?: boolean;
-  data?: PageResponsePublisherInfoResponse;
-}
-
-export interface PageResponsePublisherInfoResponse {
-  content?: PublisherInfoResponse[];
   /** @format int32 */
   currentPage?: number;
   /** @format int64 */
@@ -1850,10 +1552,11 @@ export class Api<
   };
   readingProgressController = {
     /**
-     * No description
+     * @description 특정 책에 대한 나의 독서 진행률을 저장합니다. 진행률은 0에서 100 사이의 값으로, 100은 책을 다 읽었음을 의미합니다.
      *
      * @tags reading-progress-controller
      * @name SaveMyProgress
+     * @summary 내 독서 진행률 저장
      * @request POST:/api/reading-progress/{bookId}/save
      * @secure
      */
@@ -1872,10 +1575,11 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description 특정 책에 대한 나의 독서 진행률을 조회합니다.
      *
      * @tags reading-progress-controller
      * @name GetMyProgress
+     * @summary 내 독서 진행률 조회
      * @request GET:/api/reading-progress/{bookId}
      * @secure
      */
@@ -1912,10 +1616,11 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description 특정 독서모임 활동에 대한 모든 모임원의 독서 진행률 히스토리를 조회합니다. 이 API는 사용자의 독서 진행률 변화를 시간순으로 보여줍니다.
      *
      * @tags reading-progress-controller
      * @name GetProgressHistory
+     * @summary 독서 진행률 히스토리 조회
      * @request GET:/api/reading-progress/activities/{activityId}/history
      * @secure
      */
@@ -1923,92 +1628,6 @@ export class Api<
       this.request<ApiSuccessResponseListReadingProgressHistoryResponse, any>({
         path: `/api/reading-progress/activities/${activityId}/history`,
         method: "GET",
-        secure: true,
-        ...params,
-      }),
-  };
-  publisherController = {
-    /**
-     * No description
-     *
-     * @tags publisher-controller
-     * @name PublisherJoin
-     * @request POST:/api/publishers/join
-     * @secure
-     */
-    publisherJoin: (data: PublisherJoinRequest, params: RequestParams = {}) =>
-      this.request<ApiSuccessResponseLoginResponse, any>({
-        path: `/api/publishers/join`,
-        method: "POST",
-        body: data,
-        secure: true,
-        type: ContentType.FormData,
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags publisher-controller
-     * @name GetPublisherStats
-     * @request GET:/api/publishers/stats
-     * @secure
-     */
-    getPublisherStats: (params: RequestParams = {}) =>
-      this.request<ApiSuccessResponsePublisherStatsResponse, any>({
-        path: `/api/publishers/stats`,
-        method: "GET",
-        secure: true,
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags publisher-controller
-     * @name PublisherInfo
-     * @request GET:/api/publishers/me
-     * @secure
-     */
-    publisherInfo: (params: RequestParams = {}) =>
-      this.request<ApiSuccessResponsePublisherInfoResponse, any>({
-        path: `/api/publishers/me`,
-        method: "GET",
-        secure: true,
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags publisher-controller
-     * @name GetPublisherBooks
-     * @request GET:/api/publishers/me/books
-     * @secure
-     */
-    getPublisherBooks: (
-      query?: {
-        /**
-         * Zero-based page index (0..N)
-         * @min 0
-         * @default 0
-         */
-        page?: number;
-        /**
-         * The size of the page to be returned
-         * @min 1
-         * @default 20
-         */
-        size?: number;
-        /** Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported. */
-        sort?: string[];
-      },
-      params: RequestParams = {},
-    ) =>
-      this.request<ApiSuccessResponsePageResponseEbookFetchResponse, any>({
-        path: `/api/publishers/me/books`,
-        method: "GET",
-        query: query,
         secure: true,
         ...params,
       }),
@@ -2052,10 +1671,11 @@ export class Api<
   };
   highlightController = {
     /**
-     * No description
+     * @description 하이라이트를 조회합니다. 필터링 옵션으로 활동 ID, 도서 ID, 스파인, 나의 하이라이트 여부, 키워드를 사용할 수 있습니다.
      *
      * @tags highlight-controller
      * @name GetHighlights
+     * @summary 하이라이트 조회
      * @request GET:/api/highlights
      * @secure
      */
@@ -2094,10 +1714,11 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description 새로운 하이라이트를 생성합니다. 활동 ID, 도서 ID, spine, cfi, 메모 내용, 인용 구절 등을 포함할 수 있습니다.
      *
      * @tags highlight-controller
      * @name CreateHighlight
+     * @summary 하이라이트 생성
      * @request POST:/api/highlights
      * @secure
      */
@@ -2112,10 +1733,11 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description 특정 하이라이트에 대한 반응을 추가합니다.
      *
      * @tags highlight-controller
      * @name GetHighlightReactions
+     * @summary 하이라이트 반응 추가
      * @request GET:/api/highlights/{highlightId}/reactions
      * @secure
      */
@@ -2128,10 +1750,11 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description 특정 하이라이트의 상세 정보를 조회합니다.
      *
      * @tags highlight-controller
      * @name GetHighlight
+     * @summary 하이라이트 상세 조회
      * @request GET:/api/highlights/{id}
      * @secure
      */
@@ -2144,10 +1767,11 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description 특정 하이라이트를 삭제합니다.
      *
      * @tags highlight-controller
      * @name DeleteHighlight
+     * @summary 하이라이트 삭제
      * @request DELETE:/api/highlights/{id}
      * @secure
      */
@@ -2160,10 +1784,11 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description 특정 하이라이트를 수정합니다.
      *
      * @tags highlight-controller
      * @name UpdateHighlight
+     * @summary 하이라이트 수정
      * @request PATCH:/api/highlights/{id}
      * @secure
      */
@@ -2183,10 +1808,11 @@ export class Api<
   };
   highlightReactionController = {
     /**
-     * No description
+     * @description 특정 하이라이트에 이모티콘을 추가합니다. 이모티콘은 사용자의 감정을 표현하는데 사용됩니다.
      *
      * @tags highlight-reaction-controller
      * @name AddReaction
+     * @summary 하이라이트 이모티콘 추가
      * @request POST:/api/highlights/{highlightId}/reactions
      * @secure
      */
@@ -2205,10 +1831,11 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description 특정 하이라이트에 추가된 이모티콘들을 조회합니다.
      *
      * @tags highlight-reaction-controller
      * @name DeleteReaction
+     * @summary 하이라이트 이모티콘 조회
      * @request DELETE:/api/highlights/reactions/{reactionId}
      * @secure
      */
@@ -2222,10 +1849,11 @@ export class Api<
   };
   highlightCommentController = {
     /**
-     * No description
+     * @description 특정 하이라이트에 작성된 댓글들을 조회합니다.
      *
      * @tags highlight-comment-controller
      * @name GetComments
+     * @summary 하이라이트 댓글 조회
      * @request GET:/api/highlights/{highlightId}/comments
      * @secure
      */
@@ -2238,10 +1866,11 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description 특정 하이라이트에 댓글을 작성합니다.
      *
      * @tags highlight-comment-controller
      * @name CreateComment
+     * @summary 하이라이트 댓글 생성
      * @request POST:/api/highlights/{highlightId}/comments
      * @secure
      */
@@ -2260,10 +1889,11 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description 특정 하이라이트 댓글을 삭제합니다.
      *
      * @tags highlight-comment-controller
      * @name DeleteComment
+     * @summary 하이라이트 댓글 삭제
      * @request DELETE:/api/highlights/comments/{commentId}
      * @secure
      */
@@ -2276,10 +1906,11 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description 특정 하이라이트 댓글을 수정합니다.
      *
      * @tags highlight-comment-controller
      * @name UpdateComment
+     * @summary 하이라이트 댓글 수정
      * @request PATCH:/api/highlights/comments/{commentId}
      * @secure
      */
@@ -2338,10 +1969,11 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description 새로운 모임을 생성합니다.
      *
      * @tags group-controller
      * @name CreateGroup
+     * @summary 모임 생성
      * @request POST:/api/groups
      * @secure
      */
@@ -2377,10 +2009,11 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description 특정 모임에 가입 요청을 보냅니다. 모임장이 승인해야 가입됩니다.
      *
      * @tags group-controller
      * @name RequestJoinGroup
+     * @summary 모임 가입 요청
      * @request POST:/api/groups/{groupId}/join
      * @secure
      */
@@ -2410,10 +2043,11 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description 특정 모임의 정보를 수정합니다. 프로필 사진, 이름, 설명, 태그 등을 수정할 수 있습니다.
      *
      * @tags group-controller
      * @name UpdateGroup
+     * @summary 모임 정보 수정
      * @request PATCH:/api/groups/{groupId}
      * @secure
      */
@@ -2432,10 +2066,11 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description 모임장이 특정 사용자의 가입 요청을 거절합니다.
      *
      * @tags group-controller
      * @name RejectJoinRequest
+     * @summary 모임 가입 요청 거절
      * @request PATCH:/api/groups/{groupId}/members/{userId}/reject
      * @secure
      */
@@ -2452,10 +2087,11 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description 모임장이 특정 사용자의 가입 요청을 승인합니다.
      *
      * @tags group-controller
      * @name ApproveJoinRequest
+     * @summary 모임 가입 요청 승인
      * @request PATCH:/api/groups/{groupId}/members/{userId}/approve
      * @secure
      */
@@ -2509,10 +2145,11 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description 모임장이 승인 대기 중인 멤버 목록을 조회합니다.
      *
      * @tags group-controller
      * @name GetPendingList
+     * @summary 모임 대기중인 멤버 목록 조회
      * @request GET:/api/groups/{groupId}/members/pending
      * @secure
      */
@@ -2545,10 +2182,11 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description 특정 모임의 상세 정보를 조회합니다.
      *
      * @tags group-controller
      * @name GetGroup
+     * @summary 특정 모임 정보 조회
      * @request GET:/api/groups/{groupId}/info
      * @secure
      */
@@ -2633,10 +2271,11 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description 가입된 모임에서 탈퇴합니다.
      *
      * @tags group-controller
      * @name LeaveGroup
+     * @summary 모임 탈퇴
      * @request DELETE:/api/groups/{groupId}/members/leave
      * @secure
      */
@@ -2791,10 +2430,11 @@ export class Api<
   };
   activityController = {
     /**
-     * No description
+     * @description 특정 모임의 모든 활동을 조회합니다. 활동 제목, 전자책 정보, 시작일, 종료일 등을 포함합니다.
      *
      * @tags activity-controller
      * @name GetAllActivities
+     * @summary 모임 활동 목록 조회
      * @request GET:/api/groups/{groupId}/activities
      * @secure
      */
@@ -2827,10 +2467,11 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description 새로운 모임 활동을 생성합니다. 활동 제목, 전자책 id, 설명, 시작일, 종료일 등을 포함할 수 있습니다.
      *
      * @tags activity-controller
      * @name CreateActivity
+     * @summary 모임 활동 생성
      * @request POST:/api/groups/{groupId}/activities
      * @secure
      */
@@ -2849,10 +2490,11 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description 특정 모임 활동의 정보를 수정합니다.
      *
      * @tags activity-controller
      * @name UpdateActivity
+     * @summary 모임 활동 수정
      * @request PATCH:/api/groups/{groupId}/activities
      * @secure
      */
@@ -2905,10 +2547,11 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description 특정 모임 활동의 상세 정보를 조회합니다. 활동 제목, 전자책 정보, 설명, 시작일, 종료일, 참여자 목록 등을 포함합니다.
      *
      * @tags activity-controller
      * @name GetActivity
+     * @summary 모임 활동 상세 조회
      * @request GET:/api/activities/{activityId}
      * @secure
      */
@@ -3200,126 +2843,24 @@ export class Api<
         ...params,
       }),
   };
-  creditController = {
-    /**
-     * @description 카카오페이 결제 승인 후, 결제 정보를 저장합니다. (결제 승인)
-     *
-     * @tags credit-controller
-     * @name KakaoPaySuccess
-     * @summary 카카오페이 결제 승인
-     * @request POST:/api/credits/payment/success
-     * @secure
-     */
-    kakaoPaySuccess: (
-      query: {
-        pg_token: string;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.request<ApiSuccessResponseCreditPaymentApproveResponse, any>({
-        path: `/api/credits/payment/success`,
-        method: "POST",
-        query: query,
-        secure: true,
-        ...params,
-      }),
-
-    /**
-     * @description 특정 크레딧 상품에 대해 카카오페이 결제를 요청합니다. (결제 준비)
-     *
-     * @tags credit-controller
-     * @name RequestKakaoPay
-     * @summary 카카오페이 결제 redirect URL 요청
-     * @request POST:/api/credits/payment/ready
-     * @secure
-     */
-    requestKakaoPay: (
-      data: CreditPaymentReadyRequest,
-      params: RequestParams = {},
-    ) =>
-      this.request<ApiSuccessResponseString, any>({
-        path: `/api/credits/payment/ready`,
-        method: "POST",
-        body: data,
-        secure: true,
-        type: ContentType.Json,
-        ...params,
-      }),
-
-    /**
-     * @description 크레딧 상품 목록을 조회합니다. (구매 가능 상품만 조회)
-     *
-     * @tags credit-controller
-     * @name GetCreditProductList
-     * @summary 크레딧 상품 목록 조회
-     * @request GET:/api/credits
-     * @secure
-     */
-    getCreditProductList: (params: RequestParams = {}) =>
-      this.request<ApiSuccessResponseListCreditProductInfoResponse, any>({
-        path: `/api/credits`,
-        method: "GET",
-        secure: true,
-        ...params,
-      }),
-
-    /**
-     * @description 내 크레딧 지갑 정보를 조회합니다.
-     *
-     * @tags credit-controller
-     * @name GetMyWallet
-     * @summary 내 크레딧 지갑 조회
-     * @request GET:/api/credits/wallets
-     * @secure
-     */
-    getMyWallet: (params: RequestParams = {}) =>
-      this.request<ApiSuccessResponseCreditWalletResponse, any>({
-        path: `/api/credits/wallets`,
-        method: "GET",
-        secure: true,
-        ...params,
-      }),
-
-    /**
-     * @description 내 크레딧 거래 내역을 조회합니다. (구매, 사용 내역 포함)
-     *
-     * @tags credit-controller
-     * @name GetMyWalletTransactions
-     * @summary 내 크레딧 거래 내역 조회
-     * @request GET:/api/credits/transactions
-     * @secure
-     */
-    getMyWalletTransactions: (
-      query?: {
-        /**
-         * Zero-based page index (0..N)
-         * @min 0
-         * @default 0
-         */
-        page?: number;
-        /**
-         * The size of the page to be returned
-         * @min 1
-         * @default 20
-         */
-        size?: number;
-        /** Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported. */
-        sort?: string[];
-      },
-      params: RequestParams = {},
-    ) =>
-      this.request<
-        ApiSuccessResponsePageResponseCreditTransactionResponse,
-        any
-      >({
-        path: `/api/credits/transactions`,
-        method: "GET",
-        query: query,
-        secure: true,
-        ...params,
-      }),
-  };
   ebookController = {
+    /**
+     * @description 사용자가 전자책을 조회할 때마다 조회수를 증가시킵니다.
+     *
+     * @tags ebook-controller
+     * @name IncrementEbookViewCount
+     * @summary 전자책 조회수 증가
+     * @request POST:/api/books/{ebookId}/view
+     * @secure
+     */
+    incrementEbookViewCount: (ebookId: number, params: RequestParams = {}) =>
+      this.request<ApiSuccessResponseVoid, any>({
+        path: `/api/books/${ebookId}/view`,
+        method: "POST",
+        secure: true,
+        ...params,
+      }),
+
     /**
      * @description 전자책 목록을 페이지네이션하여 조회합니다.
      *
@@ -3361,42 +2902,6 @@ export class Api<
       }),
 
     /**
-     * @description 출판사가 전자책 파일과 정보를 업로드합니다.
-     *
-     * @tags ebook-controller
-     * @name UploadFile
-     * @summary 전자책 업로드
-     * @request POST:/api/books
-     * @secure
-     */
-    uploadFile: (data: EbookPostRequest, params: RequestParams = {}) =>
-      this.request<ApiSuccessResponseEbookPostResponse, any>({
-        path: `/api/books`,
-        method: "POST",
-        body: data,
-        secure: true,
-        type: ContentType.FormData,
-        ...params,
-      }),
-
-    /**
-     * @description 사용자가 전자책을 조회할 때마다 조회수를 증가시킵니다.
-     *
-     * @tags ebook-controller
-     * @name IncrementEbookViewCount
-     * @summary 전자책 조회수 증가
-     * @request POST:/api/books/{ebookId}/view
-     * @secure
-     */
-    incrementEbookViewCount: (ebookId: number, params: RequestParams = {}) =>
-      this.request<ApiSuccessResponseVoid, any>({
-        path: `/api/books/${ebookId}/view`,
-        method: "POST",
-        secure: true,
-        ...params,
-      }),
-
-    /**
      * @description 전자책의 상세 정보를 조회합니다.
      *
      * @tags ebook-controller
@@ -3408,26 +2913,6 @@ export class Api<
     getBook: (ebookId: number, params: RequestParams = {}) =>
       this.request<ApiSuccessResponseEbookFetchResponse, any>({
         path: `/api/books/${ebookId}`,
-        method: "GET",
-        secure: true,
-        ...params,
-      }),
-
-    /**
-     * @description 출판사가 자신이 업로드한 전자책을 다운로드하기 위한 URL을 생성합니다.
-     *
-     * @tags ebook-controller
-     * @name GetPresignedEbookUrlForPublisher
-     * @summary 출판사용 전자책 다운로드 URL 생성
-     * @request GET:/api/books/{ebookId}/publisher-download
-     * @secure
-     */
-    getPresignedEbookUrlForPublisher: (
-      ebookId: number,
-      params: RequestParams = {},
-    ) =>
-      this.request<ApiSuccessResponseEbookDownloadResponse, any>({
-        path: `/api/books/${ebookId}/publisher-download`,
         method: "GET",
         secure: true,
         ...params,
@@ -3453,19 +2938,19 @@ export class Api<
         ...params,
       }),
   };
-  ebookPurchaseController = {
+  ebookShelfController = {
     /**
-     * @description 보유한 크레딧으로 전자책을 구매합니다.
+     * @description 전자책을 내 서재에 등록합니다.
      *
-     * @tags ebook-purchase-controller
-     * @name PurchaseEbook
-     * @summary 전자책 구매
-     * @request POST:/api/books/{bookId}/purchase
+     * @tags ebook-shelf-controller
+     * @name RegisterEbook
+     * @summary 전자책 서재 등록
+     * @request POST:/api/books/{bookId}/register
      * @secure
      */
-    purchaseEbook: (bookId: number, params: RequestParams = {}) =>
-      this.request<ApiSuccessResponseEbookPurchaseResponse, any>({
-        path: `/api/books/${bookId}/purchase`,
+    registerEbook: (bookId: number, params: RequestParams = {}) =>
+      this.request<ApiSuccessResponseEbookRegisterResponse, any>({
+        path: `/api/books/${bookId}/register`,
         method: "POST",
         secure: true,
         ...params,
@@ -3474,7 +2959,7 @@ export class Api<
     /**
      * @description 내가 구매한 전자책 목록을 페이지네이션하여 조회합니다.
      *
-     * @tags ebook-purchase-controller
+     * @tags ebook-shelf-controller
      * @name GetMyBooks
      * @summary 내 전자책 목록 조회
      * @request GET:/api/books/my
@@ -3507,144 +2992,84 @@ export class Api<
         ...params,
       }),
   };
-  ebookRequestController = {
+  notificationController = {
     /**
-     * @description 출판사의 출판물 요청을 승인합니다. 관리자가 요청을 승인할 수 있습니다.
+     * No description
      *
-     * @tags ebook-request-controller
-     * @name RejectRequest
-     * @summary 출판물 요청 승인
-     * @request POST:/api/book-requests/{requestId}/reject
+     * @tags notification-controller
+     * @name MarkAsRead
+     * @summary 알림 읽음 처리
+     * @request PATCH:/api/notifications/{notificationId}/read
      * @secure
      */
-    rejectRequest: (
-      requestId: number,
-      data: EbookRequestRejectRequest,
-      params: RequestParams = {},
-    ) =>
+    markAsRead: (notificationId: number, params: RequestParams = {}) =>
       this.request<ApiSuccessResponseVoid, any>({
-        path: `/api/book-requests/${requestId}/reject`,
-        method: "POST",
-        body: data,
-        secure: true,
-        type: ContentType.Json,
-        ...params,
-      }),
-
-    /**
-     * @description 출판사의 출판물 요청을 승인합니다. 관리자가 요청을 승인할 수 있습니다.
-     *
-     * @tags ebook-request-controller
-     * @name ApproveRequest
-     * @summary 출판물 요청 승인
-     * @request POST:/api/book-requests/{requestId}/approve
-     * @secure
-     */
-    approveRequest: (requestId: number, params: RequestParams = {}) =>
-      this.request<ApiSuccessResponseVoid, any>({
-        path: `/api/book-requests/${requestId}/approve`,
-        method: "POST",
+        path: `/api/notifications/${notificationId}/read`,
+        method: "PATCH",
         secure: true,
         ...params,
       }),
 
     /**
-     * @description 대기중인 출판물 목록을 조회합니다. 출판사는 자신의 요청만 조회할 수 있습니다.
+     * No description
      *
-     * @tags ebook-request-controller
-     * @name GetEbookRequests
-     * @summary 출판물 요청 목록 조회
-     * @request GET:/api/book-requests
+     * @tags notification-controller
+     * @name GetNotifications
+     * @summary 알림 목록 조회
+     * @request GET:/api/notifications
      * @secure
      */
-    getEbookRequests: (
-      query?: {
-        /**
-         * Zero-based page index (0..N)
-         * @min 0
-         * @default 0
-         */
-        page?: number;
-        /**
-         * The size of the page to be returned
-         * @min 1
-         * @default 20
-         */
-        size?: number;
-        /** Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported. */
-        sort?: string[];
+    getNotifications: (
+      query: {
+        pageable: Pageable;
       },
       params: RequestParams = {},
     ) =>
-      this.request<
-        ApiSuccessResponsePageResponseEbookRequestFetchResponse,
-        any
-      >({
-        path: `/api/book-requests`,
+      this.request<ApiSuccessResponsePageResponseNotificationResponse, any>({
+        path: `/api/notifications`,
         method: "GET",
         query: query,
         secure: true,
         ...params,
       }),
-
+  };
+  mainController = {
     /**
-     * @description 출판사 또는 관리자가 출판물을 미리 다운로드합니다.
+     * @description Chaekit 메인 API로, health check를 위해서 사용할 수 있습니다.
      *
-     * @tags ebook-request-controller
-     * @name Download
-     * @summary 요청된 출판물 다운로드
-     * @request GET:/api/book-requests/{requestId}/download
+     * @tags main-controller
+     * @name MainApi
+     * @summary 메인 API
+     * @request GET:/api
      * @secure
      */
-    download: (requestId: number, params: RequestParams = {}) =>
-      this.request<ApiSuccessResponseEbookDownloadResponse, any>({
-        path: `/api/book-requests/${requestId}/download`,
+    mainApi: (params: RequestParams = {}) =>
+      this.request<ApiSuccessResponseString, any>({
+        path: `/api`,
+        method: "GET",
+        secure: true,
+        ...params,
+      }),
+  };
+  statisticsController = {
+    /**
+     * @description 모임의 통계 정보를 조회합니다. 총 모임 수, 총 사용자 수, 총 전자책 수, 총 활동 수, 최근 한 달간 증가한 활동 수를 포함합니다.
+     *
+     * @tags statistics-controller
+     * @name GetMainStatistics
+     * @summary 모임 통계 조회
+     * @request GET:/api/statistics
+     * @secure
+     */
+    getMainStatistics: (params: RequestParams = {}) =>
+      this.request<ApiSuccessResponseMainStatisticResponse, any>({
+        path: `/api/statistics`,
         method: "GET",
         secure: true,
         ...params,
       }),
   };
   adminController = {
-    /**
-     * @description 사유를 제시하며 출판사를 거절합니다.
-     *
-     * @tags admin-controller
-     * @name RejectPublisher
-     * @summary 출판사 거절
-     * @request POST:/api/admin/publishers/{publisherId}/reject
-     * @secure
-     */
-    rejectPublisher: (
-      publisherId: number,
-      data: RejectPublisherRequest,
-      params: RequestParams = {},
-    ) =>
-      this.request<ApiSuccessResponseVoid, any>({
-        path: `/api/admin/publishers/${publisherId}/reject`,
-        method: "POST",
-        body: data,
-        secure: true,
-        type: ContentType.Json,
-        ...params,
-      }),
-
-    /**
-     * @description 출판사를 승인합니다.
-     *
-     * @tags admin-controller
-     * @name AcceptPublisher
-     * @summary 출판사 승인
-     * @request POST:/api/admin/publishers/{publisherId}/accept
-     * @secure
-     */
-    acceptPublisher: (publisherId: number, params: RequestParams = {}) =>
-      this.request<ApiSuccessResponseVoid, any>({
-        path: `/api/admin/publishers/${publisherId}/accept`,
-        method: "POST",
-        secure: true,
-        ...params,
-      }),
-
     /**
      * @description 모든 유저 목록을 확인할 수 있습니다.
      *
@@ -3677,195 +3102,6 @@ export class Api<
         path: `/api/admin/users`,
         method: "GET",
         query: query,
-        secure: true,
-        ...params,
-      }),
-
-    /**
-     * @description 모든 출판사 목록을 확인할 수 있습니다.
-     *
-     * @tags admin-controller
-     * @name FetchPublishers
-     * @summary 출판사 목록 조회
-     * @request GET:/api/admin/publishers
-     * @secure
-     */
-    fetchPublishers: (
-      query?: {
-        /**
-         * Zero-based page index (0..N)
-         * @min 0
-         * @default 0
-         */
-        page?: number;
-        /**
-         * The size of the page to be returned
-         * @min 1
-         * @default 20
-         */
-        size?: number;
-        /** Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported. */
-        sort?: string[];
-      },
-      params: RequestParams = {},
-    ) =>
-      this.request<ApiSuccessResponsePageResponsePublisherInfoResponse, any>({
-        path: `/api/admin/publishers`,
-        method: "GET",
-        query: query,
-        secure: true,
-        ...params,
-      }),
-
-    /**
-     * @description 승인 대기 중인 출판사 목록을 확인할 수 있습니다.
-     *
-     * @tags admin-controller
-     * @name FetchPendingList
-     * @summary 출판사 승인 대기 목록 조회
-     * @request GET:/api/admin/publishers/pending
-     * @secure
-     */
-    fetchPendingList: (
-      query?: {
-        /**
-         * Zero-based page index (0..N)
-         * @min 0
-         * @default 0
-         */
-        page?: number;
-        /**
-         * The size of the page to be returned
-         * @min 1
-         * @default 20
-         */
-        size?: number;
-        /** Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported. */
-        sort?: string[];
-      },
-      params: RequestParams = {},
-    ) =>
-      this.request<ApiSuccessResponsePageResponsePublisherInfoResponse, any>({
-        path: `/api/admin/publishers/pending`,
-        method: "GET",
-        query: query,
-        secure: true,
-        ...params,
-      }),
-  };
-  publisherNotificationController = {
-    /**
-     * No description
-     *
-     * @tags publisher-notification-controller
-     * @name MarkAsRead
-     * @summary 출판사 알림 읽음 처리
-     * @request PATCH:/api/publisher/notifications/{notificationId}/read
-     * @secure
-     */
-    markAsRead: (notificationId: number, params: RequestParams = {}) =>
-      this.request<ApiSuccessResponseVoid, any>({
-        path: `/api/publisher/notifications/${notificationId}/read`,
-        method: "PATCH",
-        secure: true,
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags publisher-notification-controller
-     * @name GetNotifications
-     * @summary 출판사 알림 목록 조회
-     * @request GET:/api/publisher/notifications
-     * @secure
-     */
-    getNotifications: (
-      query: {
-        pageable: Pageable;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.request<ApiSuccessResponsePageResponseNotificationResponse, any>({
-        path: `/api/publisher/notifications`,
-        method: "GET",
-        query: query,
-        secure: true,
-        ...params,
-      }),
-  };
-  notificationController = {
-    /**
-     * No description
-     *
-     * @tags notification-controller
-     * @name MarkAsRead1
-     * @summary 알림 읽음 처리
-     * @request PATCH:/api/notifications/{notificationId}/read
-     * @secure
-     */
-    markAsRead1: (notificationId: number, params: RequestParams = {}) =>
-      this.request<ApiSuccessResponseVoid, any>({
-        path: `/api/notifications/${notificationId}/read`,
-        method: "PATCH",
-        secure: true,
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags notification-controller
-     * @name GetNotifications1
-     * @summary 알림 목록 조회
-     * @request GET:/api/notifications
-     * @secure
-     */
-    getNotifications1: (
-      query: {
-        pageable: Pageable;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.request<ApiSuccessResponsePageResponseNotificationResponse, any>({
-        path: `/api/notifications`,
-        method: "GET",
-        query: query,
-        secure: true,
-        ...params,
-      }),
-  };
-  mainController = {
-    /**
-     * No description
-     *
-     * @tags main-controller
-     * @name MainApi
-     * @request GET:/api
-     * @secure
-     */
-    mainApi: (params: RequestParams = {}) =>
-      this.request<ApiSuccessResponseString, any>({
-        path: `/api`,
-        method: "GET",
-        secure: true,
-        ...params,
-      }),
-  };
-  statisticsController = {
-    /**
-     * @description 모임의 통계 정보를 조회합니다. 총 모임 수, 총 사용자 수, 총 전자책 수, 총 활동 수, 최근 한 달간 증가한 활동 수를 포함합니다.
-     *
-     * @tags statistics-controller
-     * @name GetMainStatistics
-     * @summary 모임 통계 조회
-     * @request GET:/api/statistics
-     * @secure
-     */
-    getMainStatistics: (params: RequestParams = {}) =>
-      this.request<ApiSuccessResponseMainStatisticResponse, any>({
-        path: `/api/statistics`,
-        method: "GET",
         secure: true,
         ...params,
       }),
