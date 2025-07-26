@@ -161,11 +161,11 @@ export function PastActivityCard(props: {
     );
     if (!response.isSuccessful) {
       switch (response.errorCode) {
-        case "EBOOK_NOT_PURCHASED": {
-          const shouldMoveToPurchasePage = confirm(
+        case "EBOOK_NOT_REGISTERED": {
+          const shouldMoveToRegisterPage = confirm(
             "활동에 참여하기 위해서는 책을 서재에 담아야 합니다. 서재로 이동하시겠습니까?",
           );
-          if (shouldMoveToPurchasePage) {
+          if (shouldMoveToRegisterPage) {
             navigate({
               to: "/books/$bookId",
               params: { bookId: activity.bookId },

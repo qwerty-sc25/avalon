@@ -28,7 +28,6 @@ function RouteComponent() {
   const [author, setAuthor] = useState("");
   const [description, setDescription] = useState("");
   const [coverImageFile, setCoverImageFile] = useState<File | null>(null);
-  const [price, setPrice] = useState<number>(0);
   const { enqueueSnackbar } = useSnackbar();
 
   const handleUploadBookButtonClicked = async () => {
@@ -129,26 +128,6 @@ function RouteComponent() {
               setDescription(value);
             }}
             helperText={`${description.length} / ${MAX_DESCRIPTION_LENGTH}`}
-          />
-        </CardContent>
-        <CardContent>
-          <InputLabel>가격</InputLabel>
-          <TextField
-            fullWidth
-            placeholder="10000"
-            value={price.toLocaleString()}
-            onChange={(e) => {
-              const value = e.target.value.replace(/,/g, "");
-              const parsedValue = parseInt(value);
-              if (isNaN(parsedValue)) {
-                return;
-              }
-              if (parsedValue < 0) {
-                setPrice(0);
-                return;
-              }
-              setPrice(parsedValue);
-            }}
           />
         </CardContent>
         <CardActions>

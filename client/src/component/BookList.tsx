@@ -103,7 +103,7 @@ function BookListItem(props: { book?: BookMetadata }) {
       return response.data.percentage!;
     },
     initialData: 0,
-    enabled: book?.isPurchased,
+    enabled: book?.isOnBookshelf,
   });
 
   if (!book) {
@@ -165,7 +165,7 @@ function BookListItem(props: { book?: BookMetadata }) {
               {(book.size / 1024 / 1024).toFixed(1)} MiB
             </Typography>
             <Typography variant="body1" color="primary">
-              {book.price.toLocaleString()}원
+              [가격 없음]
             </Typography>
           </Stack>
         </Stack>

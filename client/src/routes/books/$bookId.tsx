@@ -52,7 +52,7 @@ function RouteComponent() {
       if (!response.isSuccessful) throw new Error(response.errorMessage);
       return response.data;
     },
-    enabled: book?.isPurchased,
+    enabled: book?.isOnBookshelf,
   });
 
   const handleRegisterBook = async () => {
@@ -101,18 +101,6 @@ function RouteComponent() {
                 {book.description}
               </Typography>
               <Divider />
-              <Stack direction="row" spacing={2} alignItems="center">
-                <Typography
-                  variant="body1"
-                  color="textSecondary"
-                  sx={{ minWidth: 80 }}
-                >
-                  가격
-                </Typography>
-                <Typography variant="h5" color="primary.main" fontWeight={700}>
-                  {book.price.toLocaleString() + "원"}
-                </Typography>
-              </Stack>
               <Stack direction="row" spacing={2} alignItems="center">
                 <Typography
                   variant="body1"
