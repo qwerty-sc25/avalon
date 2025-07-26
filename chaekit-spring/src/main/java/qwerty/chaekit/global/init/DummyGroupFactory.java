@@ -33,6 +33,7 @@ public class DummyGroupFactory {
                 .description(dummyGroup.getDescription())
                 .groupImageKey(dummyGroup.getGroupImageKey())
                 .build();
+        newGroup.changeAutoApproval(true);
         
         if(!groupRepository.existsReadingGroupByName(newGroup.getName())) {
             ReadingGroup savedGroup = groupRepository.save(newGroup);
