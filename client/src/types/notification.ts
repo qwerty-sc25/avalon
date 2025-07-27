@@ -2,9 +2,6 @@ export enum NotificationType {
   GROUP_JOIN_REQUEST = "GROUP_JOIN_REQUEST",
   GROUP_JOIN_APPROVED = "GROUP_JOIN_APPROVED",
   GROUP_JOIN_REJECTED = "GROUP_JOIN_REJECTED",
-  PUBLISHER_JOIN_REQUEST = "PUBLISHER_JOIN_REQUEST",
-  PUBLISHER_APPROVED = "PUBLISHER_APPROVED",
-  PUBLISHER_REJECTED = "PUBLISHER_REJECTED",
   DISCUSSION_COMMENT = "DISCUSSION_COMMENT",
   COMMENT_REPLY = "COMMENT_REPLY",
   HIGHLIGHT_COMMENT = "HIGHLIGHT_COMMENT",
@@ -41,27 +38,6 @@ export type Notification =
       senderId: number;
       groupId: number;
       groupName: string;
-    })
-  | (NotificationCommon & {
-      type: NotificationType.PUBLISHER_JOIN_REQUEST;
-      receiverId?: number;
-      senderId: number;
-      publisherId: number;
-      publisherName: string;
-    })
-  | (NotificationCommon & {
-      type: NotificationType.PUBLISHER_APPROVED;
-      receiverId: number;
-      senderId?: number;
-      publisherId: number;
-      publisherName: string;
-    })
-  | (NotificationCommon & {
-      type: NotificationType.PUBLISHER_REJECTED;
-      receiverId?: number;
-      senderId: number;
-      publisherId: number;
-      publisherName: string;
     })
   | (NotificationCommon & {
       type: NotificationType.DISCUSSION_COMMENT;

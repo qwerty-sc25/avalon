@@ -20,7 +20,7 @@ export default function RegisterForm({
   registerType,
   handleBack,
 }: {
-  registerType?: "member" | "publisher";
+  registerType?: "member";
   handleBack: () => void;
 }) {
   const theme = useTheme();
@@ -72,14 +72,6 @@ export default function RegisterForm({
     if (registerType === "member") {
       response = await API_CLIENT.userController.userJoin({
         nickname,
-        email,
-        password,
-        verificationCode,
-        ...(profileImage ? { profileImage } : {}),
-      });
-    } else if (registerType === "publisher") {
-      response = await API_CLIENT.publisherController.publisherJoin({
-        publisherName: nickname,
         email,
         password,
         verificationCode,
@@ -223,13 +215,9 @@ export default function RegisterForm({
                   {!profileImage && <AddIcon />}
                 </Avatar>
               </div>
-              <InputLabel>
-                {registerType == "member" ? "Nickname" : "Publisher Name"}
-              </InputLabel>
+              <InputLabel>{"Nickname"}</InputLabel>
               <OutlinedInput
-                placeholder={
-                  registerType == "member" ? "Nickname" : "Publisher Name"
-                }
+                placeholder={"member"}
                 fullWidth
                 value={nickname}
                 onChange={(e) => setNickname(e.target.value)}

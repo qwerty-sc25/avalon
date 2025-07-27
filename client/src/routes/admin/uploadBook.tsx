@@ -14,7 +14,6 @@ import {
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useSnackbar } from "notistack";
-import API_CLIENT from "../../api/api";
 import { Add } from "@mui/icons-material";
 
 const MAX_DESCRIPTION_LENGTH = 10000;
@@ -29,7 +28,6 @@ function RouteComponent() {
   const [author, setAuthor] = useState("");
   const [description, setDescription] = useState("");
   const [coverImageFile, setCoverImageFile] = useState<File | null>(null);
-  const [price, setPrice] = useState<number>(0);
   const { enqueueSnackbar } = useSnackbar();
 
   const handleUploadBookButtonClicked = async () => {
@@ -45,21 +43,8 @@ function RouteComponent() {
         });
         return;
       }
-      const response = await API_CLIENT.ebookController.uploadFile({
-        title,
-        file,
-        description,
-        author,
-        coverImageFile: coverImageFile ?? undefined,
-        price,
-      });
-      if (response.isSuccessful) {
-        setTitle("");
-        setAuthor("");
-        setDescription("");
-        setCoverImageFile(null);
-        setPrice(0);
-      }
+      // Upload book
+      alert("Upload book not implemented yet.");
     };
     inputElement.click();
   };
@@ -143,26 +128,6 @@ function RouteComponent() {
               setDescription(value);
             }}
             helperText={`${description.length} / ${MAX_DESCRIPTION_LENGTH}`}
-          />
-        </CardContent>
-        <CardContent>
-          <InputLabel>가격</InputLabel>
-          <TextField
-            fullWidth
-            placeholder="10000"
-            value={price.toLocaleString()}
-            onChange={(e) => {
-              const value = e.target.value.replace(/,/g, "");
-              const parsedValue = parseInt(value);
-              if (isNaN(parsedValue)) {
-                return;
-              }
-              if (parsedValue < 0) {
-                setPrice(0);
-                return;
-              }
-              setPrice(parsedValue);
-            }}
           />
         </CardContent>
         <CardActions>

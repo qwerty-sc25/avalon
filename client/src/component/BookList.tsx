@@ -16,7 +16,7 @@ import API_CLIENT from "../api/api";
 
 export enum BookListKind {
   ALL_BOOK = "ALL_BOOK",
-  PURCHASED_BOOK = "PURCHASED_BOOK",
+  ON_BOOK_SHELF = "ON_BOOK_SHELF",
 }
 
 export default function BookList(props: {
@@ -95,7 +95,7 @@ function BookListItem(props: { book?: BookMetadata }) {
     queryFn: async () => {
       if (!book) return 0;
       const response = await API_CLIENT.readingProgressController.getMyProgress(
-        book.id
+        book.id,
       );
       if (!response.isSuccessful) {
         throw new Error(response.errorMessage);
@@ -103,7 +103,7 @@ function BookListItem(props: { book?: BookMetadata }) {
       return response.data.percentage!;
     },
     initialData: 0,
-    enabled: book?.isPurchased,
+    enabled: book?.isOnBookshelf,
   });
 
   if (!book) {
@@ -165,7 +165,7 @@ function BookListItem(props: { book?: BookMetadata }) {
               {(book.size / 1024 / 1024).toFixed(1)} MiB
             </Typography>
             <Typography variant="body1" color="primary">
-              {book.price.toLocaleString()}원
+              [가격 없음]
             </Typography>
           </Stack>
         </Stack>
@@ -178,8 +178,8 @@ function getFetchFunction(groupType: BookListKind) {
   switch (groupType) {
     case BookListKind.ALL_BOOK:
       return API_CLIENT.ebookController.getBooks;
-    case BookListKind.PURCHASED_BOOK:
-      return API_CLIENT.ebookPurchaseController.getMyBooks;
+    case BookListKind.ON_BOOK_SHELF:
+      return API_CLIENT.ebookShelfController.getMyBooks;
     default:
       throw new Error("Invalid group type");
   }

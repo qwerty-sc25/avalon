@@ -6,13 +6,11 @@ import {
   Avatar,
   Stack,
   IconButton,
-  Chip,
-  Tooltip,
   BottomNavigation,
   BottomNavigationAction,
 } from "@mui/material";
 import { createLink } from "@tanstack/react-router";
-import { useAtom } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import { useLocation } from "@tanstack/react-router";
 import { AuthState } from "../states/auth";
 import { Role } from "../types/role";
@@ -29,53 +27,20 @@ import {
   Book,
   Group,
 } from "@mui/icons-material";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import SideNavigationBar, { NavigationItem } from "./SideNavigatorBar";
-import { useQuery } from "@tanstack/react-query";
-import API_CLIENT from "../api/api";
-import CreditPurchaseModal from "./CreditPurchaseModal";
 
 export default function AppBar(props: {
   sideNavigationBarItemsWithGroups: NavigationItem[][];
 }) {
   const { sideNavigationBarItemsWithGroups } = props;
-  const [user, setUser] = useAtom(AuthState.user);
+  const user = useAtomValue(AuthState.user);
   const [colorScheme, setColorScheme] = useAtom(State.UI.userColorScheme);
   const { logout } = useLogout();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [creditPurchaseModalOpen, setCreditPurchaseModalOpen] = useState(false);
   const location = useLocation();
 
-  const isUser = user && user.role === Role.ROLE_USER;
   const isAdmin = user && user.role === Role.ROLE_ADMIN;
-  const isPublisher = user && user.role === Role.ROLE_PUBLISHER;
-
-  const { data: myWallet } = useQuery({
-    queryKey: ["myWallet"],
-    queryFn: async () => {
-      const response = await API_CLIENT.creditController.getMyWallet();
-      if (!response.isSuccessful) {
-        throw new Error(response.errorMessage);
-      }
-      return response.data;
-    },
-    enabled: isUser,
-  });
-
-  useEffect(() => {
-    if (!myWallet) return;
-
-    if (myWallet.balance == null || myWallet.balance > 0) {
-      setUser((prev) => {
-        if (!prev || prev.role !== Role.ROLE_USER || !prev.firstPaymentBenefit)
-          return prev;
-        return {
-          ...prev,
-          firstPaymentBenefit: false,
-        };
-      });
-    }
-  }, [myWallet, setUser]);
 
   const onColorSchemeChangeButtonClicked = () => {
     setColorScheme((prev) => {
@@ -97,10 +62,6 @@ export default function AppBar(props: {
 
   return (
     <>
-      <CreditPurchaseModal
-        open={creditPurchaseModalOpen}
-        onClose={() => setCreditPurchaseModalOpen(false)}
-      />
       <SideNavigationBar
         open={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
@@ -134,69 +95,9 @@ export default function AppBar(props: {
             <Divider orientation="vertical" flexItem variant="middle" />
             {user ? (
               <>
-                {myWallet && (
-                  <Tooltip
-                    title={
-                      user.role === Role.ROLE_USER && user.firstPaymentBenefit
-                        ? "첫 결제 10% 추가 증정!"
-                        : ""
-                    }
-                    arrow
-                    disableHoverListener={
-                      user.role != Role.ROLE_USER || !user.firstPaymentBenefit
-                    } // 조건 아닐 땐 비활성
-                  >
-                    <Chip
-                      label={`${myWallet.balance?.toLocaleString() ?? 0} 크레딧`}
-                      color="info"
-                      size="small"
-                      sx={{
-                        display: {
-                          xs: "none",
-                          sm: "flex",
-                        },
-                        alignSelf: "center",
-                        cursor: "pointer",
-                        position: "relative",
-                        overflow: "hidden", // 반사광이 바깥으로 튀지 않도록
-                        "&::before":
-                          user.role === Role.ROLE_USER &&
-                          user.firstPaymentBenefit
-                            ? {
-                                content: '""',
-                                position: "absolute",
-                                top: 0,
-                                left: "-75%",
-                                width: "50%",
-                                height: "100%",
-                                background:
-                                  "linear-gradient(120deg, transparent, rgba(255,255,255,0.4), transparent)",
-                                transform: "skewX(-20deg)",
-                                animation: "shine 2.5s infinite",
-                              }
-                            : {},
-                        "@keyframes shine": {
-                          "0%": {
-                            left: "-75%",
-                          },
-                          "100%": {
-                            left: "125%",
-                          },
-                        },
-                      }}
-                      onClick={() => setCreditPurchaseModalOpen(true)}
-                    />
-                  </Tooltip>
-                )}
                 <LinkButton
                   color="inherit"
-                  to={
-                    isAdmin
-                      ? "/mypage/admin"
-                      : isPublisher
-                        ? "/mypage/publisher"
-                        : "/mypage"
-                  }
+                  to={isAdmin ? "/mypage/admin" : "/mypage"}
                 >
                   <Stack
                     direction="row"
@@ -207,11 +108,7 @@ export default function AppBar(props: {
                       src={user.profileImageURL}
                       sx={{ width: 24, height: 24, mr: 1 }}
                     />
-                    {user.role === Role.ROLE_USER
-                      ? user.nickname
-                      : user.role === Role.ROLE_PUBLISHER
-                        ? user.publisherName
-                        : "ADMIN"}
+                    {user.role === Role.ROLE_USER ? user.nickname : "ADMIN"}
                   </Stack>
                 </LinkButton>
                 <NotificationButton />
@@ -262,13 +159,7 @@ export default function AppBar(props: {
           <LinkBottomNavigationAction
             label="마이페이지"
             icon={<Person />}
-            to={
-              isAdmin
-                ? "/mypage/admin"
-                : isPublisher
-                  ? "/mypage/publisher"
-                  : "/mypage"
-            }
+            to={isAdmin ? "/mypage/admin" : "/mypage"}
           />
         )}
       </BottomNavigation>
