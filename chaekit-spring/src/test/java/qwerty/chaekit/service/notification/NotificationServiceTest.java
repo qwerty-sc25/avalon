@@ -67,13 +67,6 @@ class NotificationServiceTest {
     @BeforeEach
     void setUp() {
         receiver = mock(UserProfile.class);
-        sender = mock(UserProfile.class);
-        group = mock(ReadingGroup.class);
-        notification = mock(Notification.class);
-        discussion = mock(Discussion.class);
-        discussionComment = mock(DiscussionComment.class);
-        highlight = mock(Highlight.class);
-        highlightComment = mock(HighlightComment.class);
 
         when(sender.getNickname()).thenReturn("sender");
         when(group.getName()).thenReturn("group");
@@ -95,7 +88,7 @@ class NotificationServiceTest {
         notificationService.createGroupJoinRequestNotification(receiver, sender, group);
 
         // then
-        
+
     }
 
     @Test
