@@ -1,0 +1,15 @@
+# --- Configuration ---
+python-dotenv
+
+# --- Crawling (Phase 1) ---
+requests
+beautifulsoup4
+aiohttp # For async requests
+
+# --- Translation (Phase 2) ---
+# googletrans is not recommended for production. Use the official Google Cloud library.
+google-cloud-translate==2.0.1
+
+# --- Database & Storage (Phase 3) ---
+PyMySQL
+firebase-admin
